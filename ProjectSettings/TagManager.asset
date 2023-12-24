@@ -16,8 +16,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Landscape
+  - FlyingItem
   - 
   - 
   - 
@@ -40,4 +40,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Landscape
+    uniqueID: 4071875165
+    locked: 0
+  - name: FlyingItem
+    uniqueID: 3443779003
     locked: 0

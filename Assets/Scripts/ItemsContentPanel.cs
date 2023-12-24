@@ -6,6 +6,4 @@ public class ItemsContentPanel : MonoBehaviour
     [Header("SetInInspector")]
     public GameObject teamNumberDropdown;
     public GameObject dropdownContent;
-
-
 }

@@ -5,5 +5,6 @@ using UnityEngine;
 
 public class CharacterSO : ScriptableObject
 {
-
+    public Sprite characterIcon;
+    public Sprite characterImage;
 }

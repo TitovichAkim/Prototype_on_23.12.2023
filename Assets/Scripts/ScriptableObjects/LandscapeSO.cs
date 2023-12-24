@@ -5,5 +5,6 @@ using UnityEngine;
 
 public class LandscapeSO :ScriptableObject
 {
-
+    public Sprite landscapeIcon;
+    public Sprite landscapeImage;
 }

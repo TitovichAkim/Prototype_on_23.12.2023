@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4c7d4eff4048464687f7a7a5f6298c2, type: 3}
   m_Name: Landscape
   m_EditorClassIdentifier: 
+  landscapeIcon: {fileID: 21300000, guid: 1bb67f42691210048b0d7a160fac5838, type: 3}
+  landscapeImage: {fileID: 21300000, guid: 1bb67f42691210048b0d7a160fac5838, type: 3}
