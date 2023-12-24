@@ -7,4 +7,8 @@ public class LandscapeSO :ScriptableObject
 {
     public Sprite landscapeIcon;
     public Sprite landscapeImage;
+    public string landscapeName; // название
+    public bool surmountable; // преодолимость
+    public bool shootingRange; // Простреливаемость
+    public int slowingDown; // замедление
 }

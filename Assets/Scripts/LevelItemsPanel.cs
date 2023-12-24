@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class LevelItemsPanel : MonoBehaviour
@@ -56,6 +57,7 @@ public class LevelItemsPanel : MonoBehaviour
                 break;
         }
         itemPanel.GetComponent<Button>().onClick.AddListener(() => levelRedactor.SetFlyingItem(itemType, itemsIndex));
+        AssignActions(itemPanel);
     }
     public void SwitchThePanel ()
     {
@@ -67,5 +69,36 @@ public class LevelItemsPanel : MonoBehaviour
             }
         }
         itemsContentPanels[itemsDropdown.value].SetActive(true);
+    }
+
+    public void AssignActions (GameObject itemPanel)
+    {
+        // Получаем компонент EventTrigger
+        EventTrigger eventTrigger = itemPanel.GetComponent<EventTrigger>();
+
+        // Проверяем, что компонент EventTrigger присутствует
+        if(eventTrigger != null)
+        {
+            // Добавляем слушатель события OnPointerEnter
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerEnter;
+            entry.callback.AddListener((data) => { OnPointerEnterDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(entry);
+
+            EventTrigger.Entry exit = new EventTrigger.Entry();
+            exit.eventID = EventTriggerType.PointerExit;
+            exit.callback.AddListener((data) => { OnPointerExitDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(exit);
+        }
+    }
+    public void OnPointerEnterDelegate (PointerEventData data)
+    {
+        // Выполните здесь нужные действия при входе указателя в область
+        Debug.Log("Указатель вошел в область");
+    }
+    public void OnPointerExitDelegate (PointerEventData data)
+    {
+        // Выполните здесь нужные действия при входе указателя в область
+        Debug.Log("Указатель вышел из области");
     }
 }

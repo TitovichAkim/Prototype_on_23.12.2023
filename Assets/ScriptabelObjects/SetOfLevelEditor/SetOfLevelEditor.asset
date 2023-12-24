@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   landscapeSOs:
   - {fileID: 11400000, guid: c9122d254d4e9c446baabe3956d6b8db, type: 2}
+  - {fileID: 11400000, guid: 1aa304225b9e4a8419decf0d10bf2965, type: 2}
+  - {fileID: 11400000, guid: 0c6d9e9b73074444abbaa97d28ab10af, type: 2}
   characterSOs:
   - {fileID: 11400000, guid: 73f6ea5de4b0dcc4a8006b0deffea428, type: 2}

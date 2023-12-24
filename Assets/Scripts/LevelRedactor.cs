@@ -10,6 +10,7 @@ public class LevelRedactor:MonoBehaviour
     public GameObject flyingItemPrefab;
     public GameObject mapAnchorPrefab;
     public GameObject valueSettingPanel;
+    public Transform mainCameraTransform;
     public TMP_InputField horizontalInputField;
     public TMP_InputField verticalInputField;
 
@@ -23,6 +24,10 @@ public class LevelRedactor:MonoBehaviour
 
     public void SetFlyingItem (ScriptableObject itemType, int itemIndex)
     {
+        if (currentHostedItem != null)
+        {
+            Destroy(currentHostedItem);
+        }
         currentHostedItem = Instantiate(flyingItemPrefab);
         switch(itemType)
         {
@@ -70,6 +75,7 @@ public class LevelRedactor:MonoBehaviour
                 verticalInputField.GetComponent<Image>().color = Color.red;
             }
         }
+        mainCameraTransform.position = new Vector3(x / 2, y / 2, -10);
     }
 
     private void InstantiateMap (int x, int y)
