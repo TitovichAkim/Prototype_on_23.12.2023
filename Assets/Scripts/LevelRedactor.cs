@@ -37,6 +37,7 @@ public class LevelRedactor:MonoBehaviour
                 break;
             case CharacterSO:
                 currentHostedItem.GetComponent<SpriteRenderer>().sprite = levelItemsPanel.setOfLevelEditor.characterSOs[itemIndex].characterIcon;
+                scriptableObjectInHand = itemType;
                 break;
         }
         indexItemInHand = itemIndex;

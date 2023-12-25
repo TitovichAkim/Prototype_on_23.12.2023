@@ -44,6 +44,9 @@ TagManager:
   - name: Landscape
     uniqueID: 4071875165
     locked: 0
+  - name: Character
+    uniqueID: 3671260927
+    locked: 0
   - name: FlyingItem
     uniqueID: 3443779003
     locked: 0

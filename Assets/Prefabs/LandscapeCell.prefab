@@ -99,6 +99,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   landscapeSpriteRenderer: {fileID: 5097283868773913712}
+  characterPrefab: {fileID: 4175038123089058351, guid: e0bdb3f473ebf7843a50989e22a5fed4, type: 3}
+  currentCharacter: {fileID: 0}
+  levelRedactor: {fileID: 0}
 --- !u!61 &5097283868773913714
 BoxCollider2D:
   m_ObjectHideFlags: 0
