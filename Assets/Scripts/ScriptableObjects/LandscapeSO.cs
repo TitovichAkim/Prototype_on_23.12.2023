@@ -11,4 +11,5 @@ public class LandscapeSO :ScriptableObject
     public bool surmountable; // преодолимость
     public bool shootingRange; // Простреливаемость
     public int slowingDown; // замедление
+    public int landscapeIndex; // Индекс ячейки для сохранения
 }

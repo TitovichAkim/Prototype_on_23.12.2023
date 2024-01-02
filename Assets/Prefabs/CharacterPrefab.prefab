@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4175038123089058352}
   - component: {fileID: -8059731369125560562}
-  - component: {fileID: 6692419008046852385}
+  - component: {fileID: 5156534038480222802}
   m_Layer: 0
   m_Name: CharacterPrefab
   m_TagString: Untagged
@@ -143,7 +143,7 @@ MonoBehaviour:
   initiative: 0
   path: []
   currentLandscapeCell: {fileID: 0}
---- !u!114 &6692419008046852385
+--- !u!114 &5156534038480222802
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -152,6 +152,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4175038123089058351}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d59707e36b135c4abe04927a877d711, type: 3}
+  m_Script: {fileID: 11500000, guid: 3eca05728045c644db950d6ae0f381d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  character: {fileID: -8059731369125560562}

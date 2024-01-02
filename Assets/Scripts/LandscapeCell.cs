@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,18 +8,21 @@ public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 {
     [Header("SetInInspector")]
     public SpriteRenderer landscapeSpriteRenderer;
+    public TMP_Text minimumMovementCostsText;
     public GameObject characterPrefab;
 
     [Header("SetDynamically")]
-    public Character currentCharacter;
+    public Character currentCharacter; // Ссылка на персонажа, находящегося в этой клетке
     public LevelRedactor levelRedactor;
-    public List<LandscapeCell> shortestPath; // список для хранения кратчайшего пути
-    public float costOfThePath; // стоимость пути 
+    public List<LandscapeCell> shortestPath = new List<LandscapeCell>(); // Массив клеток, через которые будет лежать кратчайший путь персонажа
+
     public List<LandscapeCell> adjacentLandscapeCellsInAStraightLine; // Соседние ячейки по прямой
     public List<LandscapeCell> adjacentLandscapeCellsDiagonally; // Соседние ячейки по диагонали
     public float minimumMovementCosts; // Минимальная стоимость движения к этой клетке
+    public Vector2 coordinates; // Координаты клетки 
 
-    private LandscapeSO _landscapeSO;
+
+    private LandscapeSO _landscapeSO; // Базовые характеристики клетки
     public LandscapeSO landscapeSO
     {
         get
@@ -74,6 +78,16 @@ public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandle
                     break;
             }
         }
+    }
+
+
+
+    // Метод для обновления стоимости прохода к клетке
+    public void UpdateCost (float newCost, List<LandscapeCell> path)
+    {
+        minimumMovementCosts = newCost;
+        shortestPath = path;
+        minimumMovementCostsText.text = newCost.ToString("F0");
     }
 
     public void OnPointerUp (PointerEventData pointerEventData)

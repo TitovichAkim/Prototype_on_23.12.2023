@@ -7,6 +7,7 @@ using TMPro;
 public class LevelRedactor:MonoBehaviour
 {
     [Header("SetInInspector")]
+    public MapSaveAndLoad saveAndLoad;
     public GameObject flyingItemPrefab;
     public GameObject mapAnchorPrefab;
     public GameObject valueSettingPanel;
@@ -85,6 +86,7 @@ public class LevelRedactor:MonoBehaviour
         mapAnchor.horizontalNumer = x;
         mapAnchor.verticalNumber = y;
         mapAnchor.levelRedactor = this;
+        saveAndLoad.mapAnchor = mapAnchor;
         mapAnchor.ApplyMapParameters();
     }
 }
