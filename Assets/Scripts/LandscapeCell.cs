@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class LandscapeCell:MonoBehaviour
 {
     [Header("SetInInspector")]
     public SpriteRenderer landscapeSpriteRenderer;
@@ -35,6 +35,10 @@ public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             SetLandscapeItem();
         }
     }
+    void Start ()
+    {
+        AssignActions(this.gameObject);
+    }
     public void SetLandscapeItem ()
     {
         if(landscapeSO != null)
@@ -46,7 +50,7 @@ public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     {
         if(landscapeSO != null)
         {
-            if (landscapeSO.surmountable)
+            if(landscapeSO.surmountable)
             {
                 GameObject characterGO = Instantiate(characterPrefab);
                 Character characterScr = characterGO.GetComponent<Character>();
@@ -62,26 +66,55 @@ public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             Debug.Log("Разместите прохлдимый рельеф");
         }
     }
-    public void OnPointerDown (PointerEventData pointerEventData)
+
+    public void AssignActions (GameObject cell)
     {
-        if(Input.GetMouseButtonDown(0))
+        // Получаем компонент EventTrigger
+        EventTrigger eventTrigger = cell.GetComponent<EventTrigger>();
+
+        // Проверяем, что компонент EventTrigger присутствует
+        if(eventTrigger != null)
         {
-            int indexItemInHand = levelRedactor.indexItemInHand;
-            SetOfLevelEditor setOfLevelEditor = levelRedactor.levelItemsPanel.setOfLevelEditor;
-            switch(levelRedactor.scriptableObjectInHand)
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerEnter;
+            entry.callback.AddListener((data) => { OnPointerEnterDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(entry);
+
+            EventTrigger.Entry down = new EventTrigger.Entry();
+            down.eventID = EventTriggerType.PointerDown;
+            down.callback.AddListener((data) => { OnPointerDownDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(down);
+
+            EventTrigger.Entry exit = new EventTrigger.Entry();
+            exit.eventID = EventTriggerType.PointerExit;
+            exit.callback.AddListener((data) => { OnPointerExitDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(exit);
+        }
+    }
+    public void OnPointerDownDelegate (PointerEventData data)
+    {
+        Debug.Log("Кликнул!");
+        if(Input.GetMouseButtonDown(1))
+        {
+            ApplyAnObjectInYourHand();
+        }
+    }
+    public void OnPointerEnterDelegate (PointerEventData data)
+    {
+        Debug.Log("Вошел!");
+
+        if(levelRedactor.flyingItem != null)
+        {
+            if(levelRedactor.flyingItem.paintOver)
             {
-                case LandscapeSO:
-                    landscapeSO = setOfLevelEditor.landscapeSOs[indexItemInHand];
-                    break;
-                case CharacterSO:
-                    SetCharacterItem(indexItemInHand);
-                    break;
+                ApplyAnObjectInYourHand();
             }
         }
     }
-
-
-
+    public void OnPointerExitDelegate (PointerEventData data)
+    {
+        // Выполните здесь нужные действия при входе указателя в область
+    }
     // Метод для обновления стоимости прохода к клетке
     public void UpdateCost (float newCost, List<LandscapeCell> path)
     {
@@ -90,9 +123,18 @@ public class LandscapeCell: MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         minimumMovementCostsText.text = newCost.ToString("F0");
     }
 
-    public void OnPointerUp (PointerEventData pointerEventData)
+    public void ApplyAnObjectInYourHand ()
     {
-        // Регистация отпускания клавиши (будет реализована позже)
+        int indexItemInHand = levelRedactor.indexItemInHand;
+        SetOfLevelEditor setOfLevelEditor = levelRedactor.levelItemsPanel.setOfLevelEditor;
+        switch(levelRedactor.scriptableObjectInHand)
+        {
+            case LandscapeSO:
+                landscapeSO = setOfLevelEditor.landscapeSOs[indexItemInHand];
+                break;
+            case CharacterSO:
+                SetCharacterItem(indexItemInHand);
+                break;
+        }
     }
-
 }

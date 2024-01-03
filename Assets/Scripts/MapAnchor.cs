@@ -16,13 +16,19 @@ public class MapAnchor:MonoBehaviour
     public LandscapeCell[][] landscapeCells;
     public LevelRedactor levelRedactor;
 
-    public void ApplyMapParameters()
+    public void ApplyMapParameters(bool newMap)
     {
-        landscapeSOs = new LandscapeSO[horizontalNumer][];
-        landscapeCells = new LandscapeCell[horizontalNumer][];
-        for (int i = 0; i < horizontalNumer; i++)
+        if (newMap)
         {
-            landscapeSOs[i] = new LandscapeSO[verticalNumber];
+            landscapeSOs = new LandscapeSO[horizontalNumer][];
+        }
+        landscapeCells = new LandscapeCell[horizontalNumer][];
+        for(int i = 0; i < horizontalNumer; i++)
+        {
+            if(newMap)
+            {
+                landscapeSOs[i] = new LandscapeSO[verticalNumber];
+            }
             landscapeCells[i] = new LandscapeCell[verticalNumber];
             for(int j = 0; j < verticalNumber; j++)
             {

@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 5097283868773913712}
   - component: {fileID: 5097283868773913714}
   - component: {fileID: 5097283868773913713}
+  - component: {fileID: 6685139397804134403}
   m_Layer: 11
   m_Name: LandscapeCell
   m_TagString: Untagged
@@ -388,7 +389,20 @@ MonoBehaviour:
   currentCharacter: {fileID: 0}
   levelRedactor: {fileID: 0}
   shortestPath: []
-  cost: 1000
   adjacentLandscapeCellsInAStraightLine: []
   adjacentLandscapeCellsDiagonally: []
   minimumMovementCosts: 0
+  coordinates: {x: 0, y: 0}
+--- !u!114 &6685139397804134403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5097283868773913726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []

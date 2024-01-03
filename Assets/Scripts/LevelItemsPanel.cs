@@ -10,11 +10,14 @@ public class LevelItemsPanel : MonoBehaviour
     [Header("SetInInspector")]
     public GameObject itemsContentPrefab;
     public GameObject itemPrefab;
+    public GameObject flyingTextPrefab;
     public TMP_Dropdown itemsDropdown;
     public SetOfLevelEditor setOfLevelEditor;
     public LevelRedactor levelRedactor;
+    
     [Header("SetDynamically")]
     public GameObject[] itemsContentPanels;
+    public GameObject flyingText;
     public void Start ()
     {
         itemsContentPanels = new GameObject[2];
@@ -51,13 +54,14 @@ public class LevelItemsPanel : MonoBehaviour
         {
             case LandscapeSO:
                 itemPanel.GetComponent<Image>().sprite = setOfLevelEditor.landscapeSOs[itemsIndex].landscapeIcon;
+                AssignActions(itemPanel, setOfLevelEditor.landscapeSOs[itemsIndex].landscapeName);
                 break;
             case CharacterSO:
                 itemPanel.GetComponent<Image>().sprite = setOfLevelEditor.characterSOs[itemsIndex].characterIcon;
+                AssignActions(itemPanel, setOfLevelEditor.characterSOs[itemsIndex].characterName);
                 break;
         }
         itemPanel.GetComponent<Button>().onClick.AddListener(() => levelRedactor.SetFlyingItem(itemType, itemsIndex));
-        AssignActions(itemPanel);
     }
     public void SwitchThePanel ()
     {
@@ -71,7 +75,7 @@ public class LevelItemsPanel : MonoBehaviour
         itemsContentPanels[itemsDropdown.value].SetActive(true);
     }
 
-    public void AssignActions (GameObject itemPanel)
+    public void AssignActions (GameObject itemPanel, string itemName)
     {
         // Получаем компонент EventTrigger
         EventTrigger eventTrigger = itemPanel.GetComponent<EventTrigger>();
@@ -82,7 +86,7 @@ public class LevelItemsPanel : MonoBehaviour
             // Добавляем слушатель события OnPointerEnter
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerEnter;
-            entry.callback.AddListener((data) => { OnPointerEnterDelegate((PointerEventData)data); });
+            entry.callback.AddListener((data) => { OnPointerEnterDelegate((PointerEventData)data, itemName); });
             eventTrigger.triggers.Add(entry);
 
             EventTrigger.Entry exit = new EventTrigger.Entry();
@@ -91,14 +95,13 @@ public class LevelItemsPanel : MonoBehaviour
             eventTrigger.triggers.Add(exit);
         }
     }
-    public void OnPointerEnterDelegate (PointerEventData data)
+    public void OnPointerEnterDelegate (PointerEventData data, string itemName)
     {
-        // Выполните здесь нужные действия при входе указателя в область
-        Debug.Log("Указатель вошел в область");
+        flyingText = Instantiate(flyingTextPrefab, this.gameObject.transform);
+        flyingText.GetComponent<FlyingTextPrefab>().TMPtext.text = itemName;
     }
     public void OnPointerExitDelegate (PointerEventData data)
     {
-        // Выполните здесь нужные действия при входе указателя в область
-        Debug.Log("Указатель вышел из области");
+        Destroy(flyingText);
     }
 }

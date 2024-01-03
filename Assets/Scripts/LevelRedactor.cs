@@ -21,11 +21,14 @@ public class LevelRedactor:MonoBehaviour
     public ScriptableObject scriptableObjectInHand;
     public MapAnchor mapAnchor;
     public int indexItemInHand;
+    public int horizontalNumer;
+    public int verticalNumber;
     public GameObject currentHostedItem;
+    public FlyingItem flyingItem;
 
     public void SetFlyingItem (ScriptableObject itemType, int itemIndex)
     {
-        if (currentHostedItem != null)
+        if(currentHostedItem != null)
         {
             Destroy(currentHostedItem);
         }
@@ -42,12 +45,15 @@ public class LevelRedactor:MonoBehaviour
                 break;
         }
         indexItemInHand = itemIndex;
+        flyingItem = currentHostedItem.GetComponent<FlyingItem>();
+        flyingItem.levelRedactor = this;
     }
 
     public void FormCanvas ()
     {
-        int x = int.Parse(horizontalInputField.text);
-        int y = int.Parse(verticalInputField.text);
+        int x; int y;
+        x = int.Parse(horizontalInputField.text);
+        y = int.Parse(verticalInputField.text);
         if(x > 0)
         {
             if(y > 0)
@@ -56,7 +62,8 @@ public class LevelRedactor:MonoBehaviour
                 verticalInputField.GetComponent<Image>().color = Color.white;
                 valueSettingPanel.SetActive(false);
                 levelItemsPanel.gameObject.SetActive(true);
-                InstantiateMap(x, y);
+                mapAnchor = Instantiate(mapAnchorPrefab).GetComponent<MapAnchor>();
+                InstantiateMap(x, y, true);
             }
             else
             {
@@ -80,13 +87,12 @@ public class LevelRedactor:MonoBehaviour
         mainCameraTransform.position = new Vector3(x / 2, y / 2, -10);
     }
 
-    private void InstantiateMap (int x, int y)
+    public void InstantiateMap (int x, int y, bool newMap)
     {
-        mapAnchor = Instantiate(mapAnchorPrefab).GetComponent<MapAnchor>();
         mapAnchor.horizontalNumer = x;
         mapAnchor.verticalNumber = y;
-        mapAnchor.levelRedactor = this;
         saveAndLoad.mapAnchor = mapAnchor;
-        mapAnchor.ApplyMapParameters();
+        mapAnchor.levelRedactor = this;
+        mapAnchor.ApplyMapParameters(newMap);
     }
 }

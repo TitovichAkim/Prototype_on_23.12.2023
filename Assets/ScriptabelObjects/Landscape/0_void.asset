@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4c7d4eff4048464687f7a7a5f6298c2, type: 3}
   m_Name: 0_void
   m_EditorClassIdentifier: 
-  landscapeIcon: {fileID: 21300000, guid: 1bb67f42691210048b0d7a160fac5838, type: 3}
-  landscapeImage: {fileID: 21300000, guid: 1bb67f42691210048b0d7a160fac5838, type: 3}
-  landscapeName: "\u0422\u0440\u0430\u0432\u0430"
-  surmountable: 1
-  shootingRange: 1
+  landscapeIcon: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  landscapeImage: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  landscapeName: "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C"
+  surmountable: 0
+  shootingRange: 0
   slowingDown: 0
   landscapeIndex: 0
