@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4175038121528974360}
   - component: {fileID: 4175038121528974359}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,9 @@ GameObject:
   - component: {fileID: 4175038123089058352}
   - component: {fileID: -8059731369125560562}
   - component: {fileID: 5156534038480222802}
-  m_Layer: 0
+  - component: {fileID: 3920383834622559473}
+  - component: {fileID: 524358405467688359}
+  m_Layer: 15
   m_Name: CharacterPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,18 +133,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyGO: {fileID: 4175038121528974358}
-  characterName: 
-  teamNumber: 0
-  endurance: 0
-  health: 0
-  mana: 0
-  speed: 0
-  movementPoints: 0
-  attackPower: 0
-  attackRange: 0
-  initiative: 0
+  characterRedactorPrefab: {fileID: 1419085100269722768, guid: 6924ab1f1e6eb664fb6f6da811994836, type: 3}
+  caracterRedactorPanel: {fileID: 0}
   path: []
   currentLandscapeCell: {fileID: 0}
+  teamNumber: 0
+  _lShiftDowning: 0
 --- !u!114 &5156534038480222802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,3 +152,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: -8059731369125560562}
+--- !u!58 &3920383834622559473
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4175038123089058351}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.38
+--- !u!114 &524358405467688359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4175038123089058351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []

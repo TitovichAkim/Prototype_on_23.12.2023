@@ -46,7 +46,7 @@ public class LandscapeCell:MonoBehaviour
             landscapeSpriteRenderer.sprite = landscapeSO.landscapeImage;
         }
     }
-    public void SetCharacterItem (int characterIndex)
+    public void SetCharacterItem (int characterIndex, int teamNumber = 0)
     {
         if(landscapeSO != null)
         {
@@ -55,6 +55,15 @@ public class LandscapeCell:MonoBehaviour
                 GameObject characterGO = Instantiate(characterPrefab);
                 Character characterScr = characterGO.GetComponent<Character>();
                 characterScr.characterSO = levelRedactor.levelItemsPanel.setOfLevelEditor.characterSOs[characterIndex];
+                if (teamNumber == 0)
+                {
+                    characterScr.teamNumber = levelRedactor.levelItemsPanel.itemsContentPanels[1].GetComponent<ItemsContentPanel>().teamNumberDropdown.GetComponent<TMP_Dropdown>().value + 1;
+                }
+                else
+                {
+                    characterScr.teamNumber = teamNumber;
+                }
+                levelRedactor.mapAnchor.charactersList.Add(characterScr);
                 characterGO.transform.position = this.gameObject.transform.position;
                 currentCharacter = characterScr;
                 characterScr.currentLandscapeCell = this;
@@ -63,7 +72,7 @@ public class LandscapeCell:MonoBehaviour
         }
         else
         {
-            Debug.Log("Разместите прохлдимый рельеф");
+            Debug.Log("Разместите проходимый рельеф");
         }
     }
 
@@ -93,16 +102,13 @@ public class LandscapeCell:MonoBehaviour
     }
     public void OnPointerDownDelegate (PointerEventData data)
     {
-        Debug.Log("Кликнул!");
-        if(Input.GetMouseButtonDown(1))
+        if(Input.GetMouseButtonDown(1) && levelRedactor.flyingItem != null)
         {
             ApplyAnObjectInYourHand();
         }
     }
     public void OnPointerEnterDelegate (PointerEventData data)
     {
-        Debug.Log("Вошел!");
-
         if(levelRedactor.flyingItem != null)
         {
             if(levelRedactor.flyingItem.paintOver)

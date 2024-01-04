@@ -7,6 +7,7 @@ public class CharacterSO : ScriptableObject
 {
     public Sprite characterIcon;
     public Sprite characterImage;
+    public int characterIndex; // Индекс персонажа в сете
     public string characterName;
     public int endurance; // Выносливость
     public float health; // здоровье

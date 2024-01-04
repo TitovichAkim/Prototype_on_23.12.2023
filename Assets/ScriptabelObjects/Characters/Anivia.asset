@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterIcon: {fileID: -2413806693520163455, guid: d087270bb34baa34fab7928b45a22351, type: 3}
   characterImage: {fileID: -2413806693520163455, guid: d087270bb34baa34fab7928b45a22351, type: 3}
+  characterIndex: 0
   characterName: "\u0410\u043D\u0438\u0432\u0438\u044F"
-  endurance: 0
-  health: 0
-  mana: 0
+  endurance: 30
+  health: 40
+  mana: 75
   speed: 30
-  movementPoints: 0
-  attackPower: 0
-  attackRange: 0
-  initiative: 0
+  movementPoints: 15
+  attackPower: 3
+  attackRange: 30
+  initiative: 12

@@ -13,6 +13,7 @@ public class MapAnchor:MonoBehaviour
     public int horizontalNumer;
     public int verticalNumber;
     public LandscapeSO[][] landscapeSOs;
+    public List<Character> charactersList = new List<Character>();
     public LandscapeCell[][] landscapeCells;
     public LevelRedactor levelRedactor;
 

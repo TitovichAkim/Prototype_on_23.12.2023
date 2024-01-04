@@ -25,7 +25,15 @@ public class LevelRedactor:MonoBehaviour
     public int verticalNumber;
     public GameObject currentHostedItem;
     public FlyingItem flyingItem;
-
+    private void Update ()
+    {
+        if (currentHostedItem != null && Input.GetKeyDown(KeyCode.Escape))
+        {
+            Destroy(currentHostedItem);
+            currentHostedItem = null;
+            flyingItem = null;
+        }
+    }
     public void SetFlyingItem (ScriptableObject itemType, int itemIndex)
     {
         if(currentHostedItem != null)

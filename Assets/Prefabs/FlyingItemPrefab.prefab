@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 868064950077255801}
   - component: {fileID: 868064950077255803}
   - component: {fileID: 5324611878305272639}
-  m_Layer: 12
+  m_Layer: 20
   m_Name: FlyingItemPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
