@@ -17,7 +17,7 @@ public class EnergyCostCalculator:MonoBehaviour
     // Метод для расчета стоимости прохода к клеткам
     public void CalculateEnergyCost (LandscapeCell startCell)
     {
-        float possibleCosts = character.endurance + character.movementPoints;
+        float possibleCosts = character.currentEdurance + character.movementPoints;
         character.currentLandscapeCell.minimumMovementCosts = 0; // Присвоить путь к текущей ячейке равным нулю
         // Создаем очередь для обхода клеток в порядке их стоимости
         var queue = new Queue<(LandscapeCell, List<LandscapeCell>)>();
@@ -35,37 +35,61 @@ public class EnergyCostCalculator:MonoBehaviour
             {
                 // Рассчитываем стоимость перехода к соседней клетке
                 float newCost = CalculateCost(vertex, neighbor, 5);
-                // Если записанная минимальная стоимость к вершине больше чем минимальная стоимость прохода к текущей ячейке плюс переход от нее к вершине и планируемые расходы не выше того, что имеем
                 float plannedСalculation = vertex.minimumMovementCosts + newCost;
-
-                if(neighbor.minimumMovementCosts > plannedСalculation && neighbor.minimumMovementCosts != 0 && possibleCosts - plannedСalculation >= 0 && neighbor.landscapeSO.surmountable)
+                // Если в ячейке нет других персонажей и она проходимая
+                if(neighbor.currentCharacter == null && neighbor.landscapeSO.surmountable) 
                 {
-                    List<LandscapeCell> localPath = new List<LandscapeCell>();
-                    localPath.AddRange(vertex.shortestPath);
-                    localPath.Add(vertex);
-                    path.Add(neighbor);
-                    // Обновляем стоимость и путь к ячейке
-                    neighbor.UpdateCost(plannedСalculation, localPath);
-                    // Добавляем ячейку с путем к ней в очередь
-                    queue.Enqueue((neighbor, path));
+                    // Если записанная минимальная стоимость к вершине больше чем минимальная стоимость прохода к текущей ячейке плюс переход от нее к вершине и планируемые расходы не выше того, что имеем
+                    if(neighbor.minimumMovementCosts > plannedСalculation && neighbor.minimumMovementCosts != 0 && possibleCosts - plannedСalculation >= 0)
+                    {
+                        List<LandscapeCell> localPath = new List<LandscapeCell>();
+                        localPath.AddRange(vertex.shortestPath);
+                        localPath.Add(neighbor);
+                        path.Add(neighbor);
+                        // Обновляем стоимость и путь к ячейке
+                        // Если стоимость прохода входит в пределы очков перехода 
+                        if(plannedСalculation <= character.movementPoints)
+                        {
+                            neighbor.UpdateCost(plannedСalculation, localPath, LandscapeCell.CellState.EnoughPoints); // Состояние ячейки = достаточно очков перехода
+                        }
+                        else
+                        {
+                            neighbor.UpdateCost(plannedСalculation, localPath, LandscapeCell.CellState.EnoughStamina);
+                        }
+                        // Обновляем стоимость и путь к ячейке
+                        // Добавляем ячейку с путем к ней в очередь
+                        queue.Enqueue((neighbor, path));
+                    }
                 }
             }
             foreach(var neighbor in vertex.adjacentLandscapeCellsDiagonally)
             {
                 // Рассчитываем стоимость перехода к соседней клетке
                 float newCost = CalculateCost(vertex, neighbor, Mathf.Sqrt(50));
-                // Если записанная минимальная стоимость к вершине больше чем минимальная стоимость прохода к текущей ячейке плюс переход от нее к вершине и планируемые расходы не выше того, что имеем
                 float plannedСalculation = vertex.minimumMovementCosts + newCost;
-                if(neighbor.minimumMovementCosts > plannedСalculation && neighbor.minimumMovementCosts != 0 && possibleCosts - plannedСalculation >= 0 && neighbor.landscapeSO.surmountable)
+                // Если в ячейке нет других персонажей и она проходимая
+                if(neighbor.currentCharacter == null && neighbor.landscapeSO.surmountable)
                 {
-                    List<LandscapeCell> localPath = new List<LandscapeCell>();
-                    localPath.AddRange(vertex.shortestPath);
-                    localPath.Add(vertex);
-                    path.Add(neighbor);
-                    // Обновляем стоимость и путь к ячейке
-                    neighbor.UpdateCost(plannedСalculation, localPath);
-                    // Добавляем ячейку с путем к ней в очередь
-                    queue.Enqueue((neighbor, path));
+                    // Если записанная минимальная стоимость к вершине больше чем минимальная стоимость прохода к текущей ячейке плюс переход от нее к вершине и планируемые расходы не выше того, что имеем
+                    if(neighbor.minimumMovementCosts > plannedСalculation && neighbor.minimumMovementCosts != 0 && possibleCosts - plannedСalculation >= 0 && neighbor.landscapeSO.surmountable)
+                    {
+                        List<LandscapeCell> localPath = new List<LandscapeCell>();
+                        localPath.AddRange(vertex.shortestPath);
+                        localPath.Add(neighbor);
+                        path.Add(neighbor);
+                        // Обновляем стоимость и путь к ячейке
+                        // Если стоимость прохода входит в пределы очков перехода 
+                        if(plannedСalculation <= character.movementPoints)
+                        {
+                            neighbor.UpdateCost(plannedСalculation, localPath, LandscapeCell.CellState.EnoughPoints); // Состояние ячейки = достаточно очков перехода
+                        }
+                        else
+                        {
+                            neighbor.UpdateCost(plannedСalculation, localPath, LandscapeCell.CellState.EnoughStamina);
+                        }
+                        // Добавляем ячейку с путем к ней в очередь
+                        queue.Enqueue((neighbor, path));
+                    }
                 }
             }
         }
@@ -76,7 +100,7 @@ public class EnergyCostCalculator:MonoBehaviour
     {
         // Реализация расчета стоимости перехода
         float result = (30 / character.speed) * pathLength;
-        return result; // Замените на свою реализацию
+        return result;
     }
 }
 

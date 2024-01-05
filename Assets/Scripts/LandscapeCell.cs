@@ -6,23 +6,28 @@ using UnityEngine.EventSystems;
 
 public class LandscapeCell:MonoBehaviour
 {
+    public enum CellState
+    {
+        Сalculation, // подготовка к расчету
+        EnoughPoints, // достаточно очков перехода
+        EnoughStamina, // хватает очков выносливости
+        Expectation // ожидание
+    }
     [Header("SetInInspector")]
     public SpriteRenderer landscapeSpriteRenderer;
     public TMP_Text minimumMovementCostsText;
     public GameObject characterPrefab;
-
     [Header("SetDynamically")]
     public Character currentCharacter; // Ссылка на персонажа, находящегося в этой клетке
     public LevelRedactor levelRedactor;
+    public GameManager gameManager;
     public List<LandscapeCell> shortestPath = new List<LandscapeCell>(); // Массив клеток, через которые будет лежать кратчайший путь персонажа
-
     public List<LandscapeCell> adjacentLandscapeCellsInAStraightLine; // Соседние ячейки по прямой
     public List<LandscapeCell> adjacentLandscapeCellsDiagonally; // Соседние ячейки по диагонали
     public float minimumMovementCosts; // Минимальная стоимость движения к этой клетке
     public Vector2 coordinates; // Координаты клетки 
-
-
     private LandscapeSO _landscapeSO; // Базовые характеристики клетки
+    private CellState _cellState;
     public LandscapeSO landscapeSO
     {
         get
@@ -35,6 +40,18 @@ public class LandscapeCell:MonoBehaviour
             SetLandscapeItem();
         }
     }
+    public CellState cellState
+    {
+        get
+        {
+            return (_cellState);
+        }
+        set
+        {
+            _cellState = value;
+            ChangeCellState(cellState);
+        }
+    }
     void Start ()
     {
         AssignActions(this.gameObject);
@@ -44,6 +61,11 @@ public class LandscapeCell:MonoBehaviour
         if(landscapeSO != null)
         {
             landscapeSpriteRenderer.sprite = landscapeSO.landscapeImage;
+            if (!landscapeSO.shootingRange)
+            {
+                this.gameObject.layer = 12;
+            }
+
         }
     }
     public void SetCharacterItem (int characterIndex, int teamNumber = 0)
@@ -67,6 +89,8 @@ public class LandscapeCell:MonoBehaviour
                 characterGO.transform.position = this.gameObject.transform.position;
                 currentCharacter = characterScr;
                 characterScr.currentLandscapeCell = this;
+                characterScr.gameManager = gameManager;
+                characterScr.mapAnchor = gameManager.mapAnchor.GetComponent<MapAnchor>();
             }
             Debug.Log("Нельзя разместить сдесь");
         }
@@ -102,9 +126,22 @@ public class LandscapeCell:MonoBehaviour
     }
     public void OnPointerDownDelegate (PointerEventData data)
     {
-        if(Input.GetMouseButtonDown(1) && levelRedactor.flyingItem != null)
+        if(GameManager.currentGameState == GameManager.GameState.LevelRedactor)
         {
-            ApplyAnObjectInYourHand();
+            if(Input.GetMouseButtonDown(1) && levelRedactor.flyingItem != null)
+            {
+                ApplyAnObjectInYourHand();
+            }
+        }
+        else if (GameManager.currentGameState == GameManager.GameState.Game)
+        {
+            if(Input.GetMouseButtonDown(0))
+            {
+                if (cellState == CellState.EnoughPoints || cellState == CellState.EnoughStamina)
+                {
+                    gameManager.currentCharacter.characterMovement.targetCells.AddRange(shortestPath);
+                }
+            }
         }
     }
     public void OnPointerEnterDelegate (PointerEventData data)
@@ -122,10 +159,11 @@ public class LandscapeCell:MonoBehaviour
         // Выполните здесь нужные действия при входе указателя в область
     }
     // Метод для обновления стоимости прохода к клетке
-    public void UpdateCost (float newCost, List<LandscapeCell> path)
+    public void UpdateCost (float newCost, List<LandscapeCell> path, CellState state)
     {
         minimumMovementCosts = newCost;
         shortestPath = path;
+        cellState = state;
         minimumMovementCostsText.text = newCost.ToString("F0");
     }
 
@@ -140,6 +178,32 @@ public class LandscapeCell:MonoBehaviour
                 break;
             case CharacterSO:
                 SetCharacterItem(indexItemInHand);
+                break;
+        }
+    }
+    public void ChangeCellState (CellState state)
+    {
+        switch(state)
+        {
+            case CellState.Expectation:
+                minimumMovementCosts = 1000;
+                shortestPath.Clear();
+                minimumMovementCostsText.gameObject.SetActive(false);
+                break;
+            case CellState.Сalculation:
+                minimumMovementCosts = 1000;
+                shortestPath.Clear();
+                minimumMovementCostsText.gameObject.SetActive(false);
+                break;
+            case CellState.EnoughPoints:
+                minimumMovementCostsText.gameObject.SetActive(true);
+                minimumMovementCostsText.color = Color.blue;
+                minimumMovementCostsText.text = minimumMovementCosts.ToString();
+                break;
+            case CellState.EnoughStamina:
+                minimumMovementCostsText.gameObject.SetActive(true);
+                minimumMovementCostsText.color = Color.black;
+                minimumMovementCostsText.text = minimumMovementCosts.ToString();
                 break;
         }
     }

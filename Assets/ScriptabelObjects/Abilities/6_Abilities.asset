@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7c1930e3222ca94f94917bc2b3fa0d2, type: 3}
+  m_Name: 6_Abilities
+  m_EditorClassIdentifier: 
+  abilitiesName: "\u0412\u0437\u043C\u0430\u0445 \u0449\u0438\u0442\u0430\u043C\u0438"
+  abilitiesIndex: 6
+  recharge: 2
+  requiredMana: 30
+  requiredEndurance: 15
+  firstDamage: 15
+  secondDamage: 0
+  rangeOfApplication: 20
+  radius: 0
+  slowingDown: {x: 0, y: 0}
+  boost: {x: 0, y: 0}
+  shield: {x: 0, y: 0}
+  durationOfTheEffect: 0
+  instantAction: 0

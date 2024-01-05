@@ -72,6 +72,8 @@ public class MapAnchor:MonoBehaviour
         cell.levelRedactor = levelRedactor;
         cell.landscapeSO = landscapeSOs[x][y];
         cell.coordinates = new Vector2(x, y);
+        cell.gameManager = levelRedactor.gameManager;
+        cell.cellState = LandscapeCell.CellState.Expectation;
         landscapeCells[x][y] = cell;
     }
 }

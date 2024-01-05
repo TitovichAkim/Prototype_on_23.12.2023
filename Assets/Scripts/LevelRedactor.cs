@@ -8,6 +8,7 @@ public class LevelRedactor:MonoBehaviour
 {
     [Header("SetInInspector")]
     public MapSaveAndLoad saveAndLoad;
+    public GameManager gameManager;
     public GameObject flyingItemPrefab;
     public GameObject mapAnchorPrefab;
     public GameObject valueSettingPanel;
@@ -71,6 +72,7 @@ public class LevelRedactor:MonoBehaviour
                 valueSettingPanel.SetActive(false);
                 levelItemsPanel.gameObject.SetActive(true);
                 mapAnchor = Instantiate(mapAnchorPrefab).GetComponent<MapAnchor>();
+                gameManager.mapAnchor = mapAnchor.gameObject;
                 InstantiateMap(x, y, true);
             }
             else

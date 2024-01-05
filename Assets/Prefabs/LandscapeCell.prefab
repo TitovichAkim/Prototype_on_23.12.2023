@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 6685139397804134403}
   m_Layer: 11
   m_Name: LandscapeCell
-  m_TagString: Untagged
+  m_TagString: Landscape
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -335,6 +335,7 @@ MonoBehaviour:
   characterPrefab: {fileID: 4175038123089058351, guid: e0bdb3f473ebf7843a50989e22a5fed4, type: 3}
   currentCharacter: {fileID: 0}
   levelRedactor: {fileID: 0}
+  gameManager: {fileID: 0}
   shortestPath: []
   adjacentLandscapeCellsInAStraightLine: []
   adjacentLandscapeCellsDiagonally: []

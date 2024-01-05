@@ -3,14 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Character : MonoBehaviour
+public class Character:MonoBehaviour
 {
+    public enum CharacterState
+    {
+        Expectation, // ожидание
+        Readiness, // Готовность
+        Movement, // движение
+        Attack, // Атака
+        Ability, // Умение
+        Death // Смерть
+    }
+
     [Header("SetInInspector")]
     public GameObject bodyGO;
+    public GameObject activeBackground;
     public GameObject characterRedactorPrefab;
+    public GameObject healthChangerPrefab;
+    public EnergyCostCalculator energyCostCalculator;
+    public CharacterMovement characterMovement;
+    public AttackMode attackMode;
 
     [Header("SetDynamically")]
-    public  CaracterRedactorPanel caracterRedactorPanel;
+    public GameObject portraitInTheQueueGO;
+    public GameManager gameManager;
+    public MapAnchor mapAnchor;
+    public PortraitInTheQueue portraitInTheQueueScr;
+    public CaracterRedactorPanel caracterRedactorPanel;
     public Vector2[] path;  // Маршрут движения 
     public LandscapeCell currentLandscapeCell; // Текущая ячейка игрока
     public int teamNumber; // Номер команды
@@ -28,7 +47,9 @@ public class Character : MonoBehaviour
     [SerializeField]private float _attackPower;  // Сила атаки 
     [SerializeField]private float _attackRange; // Дальность атаки
     [SerializeField]private float _initiative; // Инициатива
+    private bool firstStart = true;
     private CharacterSO _characterSO;
+    private CharacterState _characterState;
     public string characterName
     {
         get
@@ -59,7 +80,14 @@ public class Character : MonoBehaviour
         }
         set
         {
-            _currentEdurance = value;
+            if (value > endurance)
+            {
+                _currentEdurance = endurance;
+            }
+            else
+            {
+                _currentEdurance = value;
+            }
         }
     }
     public float health
@@ -81,7 +109,22 @@ public class Character : MonoBehaviour
         }
         set
         {
+            HealthChanger healthChanger = Instantiate(healthChangerPrefab, this.transform).GetComponent<HealthChanger>();
+            if(value -_currentHealth > 0)
+            {
+                healthChanger.number.color = Color.green;
+                healthChanger.number.text = "+" + (value - _currentHealth).ToString();
+            }
+            else
+            {
+                healthChanger.number.color = Color.red;
+                healthChanger.number.text = (value - _currentHealth).ToString();
+            }
             _currentHealth = value;
+            if (_currentHealth <= 0)
+            {
+                characterState = CharacterState.Death;
+            }
         }
     }
     public float mana
@@ -103,7 +146,13 @@ public class Character : MonoBehaviour
         }
         set
         {
-            _currentMana = value;
+            if (value > mana)
+            {
+                _currentMana = mana;
+            } else
+            {
+                _currentMana = value;
+            }
         }
     }
     public float speed
@@ -173,6 +222,22 @@ public class Character : MonoBehaviour
             SetParameters();
         }
     }
+    public CharacterState characterState
+    {
+        get
+        {
+            return (_characterState);
+        }
+        set
+        {
+            if (_characterState == CharacterState.Expectation)
+            {
+                ActionsStartOfTheTurn();
+            }
+            _characterState = value;
+            ChangeCharacterState(characterState);
+        }
+    }
     private void Start ()
     {
         AssignActions(this.gameObject);
@@ -192,7 +257,7 @@ public class Character : MonoBehaviour
         health = characterSO.health;
         currentHealth = characterSO.health;
         mana = characterSO.mana;
-        currentMana = characterSO.mana;
+        currentMana = characterSO.mana/2;
         speed = characterSO.speed;
         movementPoints = characterSO.movementPoints;
         attackPower = characterSO.attackPower;
@@ -212,21 +277,17 @@ public class Character : MonoBehaviour
             down.eventID = EventTriggerType.PointerDown;
             down.callback.AddListener((data) => { OnPointerDownDelegate((PointerEventData)data); });
             eventTrigger.triggers.Add(down);
-            Debug.Log("Присоединили");
         }
     }
 
     public void OnPointerDownDelegate (PointerEventData data)
     {
-        Debug.Log("Кликнул!");
         switch(GameManager.currentGameState)
         {
             case (GameManager.GameState.LevelRedactor):
-                Debug.Log("Редактор!");
 
                 if(Input.GetMouseButtonDown(0) && _lShiftDowning && caracterRedactorPanel == null)
                 {
-                    Debug.Log("Открыть окно!");
 
                     caracterRedactorPanel = Instantiate(characterRedactorPrefab).GetComponent<CaracterRedactorPanel>();
                     caracterRedactorPanel.character = this;
@@ -245,5 +306,57 @@ public class Character : MonoBehaviour
         {
             _lShiftDowning = false;
         }
+    }
+    public void ChangeCharacterState (CharacterState state)
+    {
+        ResetModes(); // Сначала сбросить эффекты других режимов
+        switch(state)
+        {
+            case CharacterState.Expectation:
+                activeBackground.SetActive(false);
+                this.gameObject.layer = 15;
+                ActionsEndOfTheTurn(); // Выполнить действия конца хода
+                break;
+            case CharacterState.Readiness:
+
+                break;
+            case CharacterState.Movement:
+                energyCostCalculator.CalculateEnergyCost(currentLandscapeCell);
+                break;
+            case CharacterState.Attack:
+                attackMode.attackIsOn = true;
+                break;
+            case CharacterState.Ability:
+                attackMode.abilityIsOn = true;
+                break;
+            case CharacterState.Death:
+                currentLandscapeCell.currentCharacter = null;
+                mapAnchor.charactersList.Remove(this);
+                Destroy(portraitInTheQueueGO);
+                Destroy(this.gameObject);
+                break;
+        }
+    }
+    public void ActionsStartOfTheTurn ()
+    {
+        if (!firstStart)
+        {
+            currentEdurance += 30;
+            movementPoints = 15;
+            currentMana += 15;
+        }
+        else
+        {
+            firstStart = false;
+        }
+    }
+    public void ActionsEndOfTheTurn ()
+    {
+        // Действия конца хода
+    }
+    // Сбрасывает эффекты других режимов
+    public void ResetModes ()
+    {
+        attackMode.attackIsOn = false;
     }
 }

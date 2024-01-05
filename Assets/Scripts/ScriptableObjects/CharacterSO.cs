@@ -17,4 +17,5 @@ public class CharacterSO : ScriptableObject
     public float attackPower; // Сила атаки
     public float attackRange; // Дальность атаки
     public float initiative; // Инициатива
+    public AbilitiesSO[] abilities; // Умения
 }

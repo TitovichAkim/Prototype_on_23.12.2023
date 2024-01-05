@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ffd11b2ceca73e45822e99596edceb8, type: 3}
-  m_Name: Bolvaar
+  m_Name: Bolvar
   m_EditorClassIdentifier: 
   characterIcon: {fileID: 21300000, guid: c42ce155215c5e64cbc1385c90cd6edb, type: 3}
   characterImage: {fileID: 21300000, guid: c42ce155215c5e64cbc1385c90cd6edb, type: 3}
@@ -18,9 +18,14 @@ MonoBehaviour:
   characterName: "\u0411\u043E\u043B\u0432\u0430\u0440"
   endurance: 30
   health: 70
-  mana: 75
+  mana: 150
   speed: 30
   movementPoints: 15
   attackPower: 4
   attackRange: 30
   initiative: 14
+  abilities:
+  - {fileID: 11400000, guid: 7870882a2d363564aa053a0d58059e83, type: 2}
+  - {fileID: 11400000, guid: 63fc7074e01a0df45a9a0a3e0edba6dc, type: 2}
+  - {fileID: 11400000, guid: c895f77e257306c4291efb31c533163e, type: 2}
+  - {fileID: 11400000, guid: 8c88def889201db41bda5aa86e1738e9, type: 2}

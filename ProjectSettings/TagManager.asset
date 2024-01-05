@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Landscape
   layers:
   - Default
   - TransparentFX
@@ -17,11 +18,11 @@ TagManager:
   - 
   - 
   - Landscape
-  - 
+  - NonShootingLandscape
   - 
   - 
   - Character
-  - 
+  - CurrentCharacter
   - 
   - 
   - 
@@ -43,6 +44,12 @@ TagManager:
     locked: 0
   - name: Landscape
     uniqueID: 4071875165
+    locked: 0
+  - name: ScopeOfApplication
+    uniqueID: 924772971
+    locked: 0
+  - name: CharacterBackground
+    uniqueID: 429353765
     locked: 0
   - name: Character
     uniqueID: 3671260927

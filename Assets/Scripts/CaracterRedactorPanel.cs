@@ -97,7 +97,6 @@ public class CaracterRedactorPanel:MonoBehaviour
         if(value == 0)
         {
             character.health = float.Parse(healthIF.text);
-
         }
         else
         {
@@ -187,7 +186,6 @@ public class CaracterRedactorPanel:MonoBehaviour
         if(value == 0)
         {
             character.attackRange = float.Parse(attackRangeIF.text);
-
         }
         else
         {

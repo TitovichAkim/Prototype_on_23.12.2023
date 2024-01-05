@@ -7,10 +7,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MapSaveAndLoad : MonoBehaviour
+public class MapSaveAndLoad:MonoBehaviour
 {
     [Header("SetInInspector")]
     public LevelRedactor levelRedactor;
+    public GameManager gameManager;
     public GameObject loadMapPanel;
     public GameObject saveButtonPrefab;
     public Toggle withCharacters;
@@ -49,7 +50,8 @@ public class MapSaveAndLoad : MonoBehaviour
     public void FillInTheSavePanel ()
     {
         int totalSaves = PlayerPrefs.GetInt("TotalSaves");
-        for (int i = 0; i < totalSaves; i ++)
+        Debug.Log($"Загрузил {totalSaves} карт");
+        for(int i = 0; i < totalSaves; i++)
         {
             string loadString = PlayerPrefs.GetString($"Save_{i}");
             if(loadString != null && loadString != "")
@@ -58,13 +60,15 @@ public class MapSaveAndLoad : MonoBehaviour
                 loadButtonsList.Add(saveButton);
                 saveButton.GetComponentInChildren<TMP_Text>().text = $"{loadString.Split('\n')[0].Split('*')[1]}\n{loadString.Split('\n')[0].Split('*')[2]}";
                 saveButton.GetComponent<Button>().onClick.AddListener(() => LoadMap(loadString));
+                saveButton.GetComponent<Button>().onClick.AddListener(() => gameManager.StartLevelRedactorState(false));
                 saveButton.GetComponent<Button>().onClick.AddListener(() => loadMapPanel.SetActive(false));
             }
         }
-}
+    }
     public void LoadMap (string loadString)
     {
         levelRedactor.mapAnchor = Instantiate(levelRedactor.mapAnchorPrefab).GetComponent<MapAnchor>();
+        gameManager.mapAnchor = levelRedactor.mapAnchor.gameObject;
         mapAnchor = levelRedactor.mapAnchor;
         mapAnchor.levelRedactor = levelRedactor;
 
@@ -109,13 +113,13 @@ public class MapSaveAndLoad : MonoBehaviour
     public string[] SetCellsParameters (int horizontalNumer, int verticalNumber)
     {
         string[] stringParameters = new string[horizontalNumer * verticalNumber];
-        for (int i = 0; i < horizontalNumer; i++)
+        for(int i = 0; i < horizontalNumer; i++)
         {
-            for (int j = 0; j < verticalNumber; j++)
+            for(int j = 0; j < verticalNumber; j++)
             {
                 if(mapAnchor.landscapeCells[i][j].landscapeSO != null)
                 {
-                    stringParameters[(i * verticalNumber) +  j] = mapAnchor.landscapeCells[i][j].landscapeSO.landscapeIndex.ToString();
+                    stringParameters[(i * verticalNumber) + j] = mapAnchor.landscapeCells[i][j].landscapeSO.landscapeIndex.ToString();
                 }
             }
         }
@@ -140,15 +144,19 @@ public class MapSaveAndLoad : MonoBehaviour
         string theSavedString = "";
         for(int i = 0; i < saveString.Length; i++)
         {
-            for(int j = 0; j < saveString[i].Length; j++)
+            if(saveString[i] != null)
             {
-                theSavedString += saveString[i][j] + "*";
-                Debug.Log(theSavedString);
+                for(int j = 0; j < saveString[i].Length; j++)
+                {
+                    theSavedString += saveString[i][j] + "*";
+                    Debug.Log(theSavedString);
+                }
+
             }
-            
-            if (i < saveString.Length - 1) 
-            { 
-                theSavedString += "\n"; 
+
+            if(i < saveString.Length - 1)
+            {
+                theSavedString += "\n";
             }
         }
         PlayerPrefs.SetString($"Save_{saveIndex}", theSavedString);
@@ -162,7 +170,7 @@ public class MapSaveAndLoad : MonoBehaviour
 
         int horizontalIndex = generalIndex / mapAnchor.verticalNumber;
         int verticalIndex;
-        if (horizontalIndex == 0)
+        if(horizontalIndex == 0)
         {
             verticalIndex = generalIndex;
         }
