@@ -182,12 +182,12 @@ public class AttackMode:MonoBehaviour
             case 0:
 
                 RaycastHit hit;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 LayerMask mask = 1 << 15;
-                Debug.Log($"То, что нужно {ray}");
 
-                if(Physics.Raycast(ray, out hit, mask))
+                if(Physics.Raycast(Camera.main.transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition), out hit, mask))
                 {
+                    Debug.Log($"То, что нужно {hit}");
+
                     hit.collider.gameObject.GetComponent<Character>().currentHealth -= currentAbility.firstDamage;
                     Collider2D[] characters = Physics2D.OverlapCircleAll(hit.collider.transform.position, currentAbility.radius, mask);
                     foreach(Collider2D collider in characters)

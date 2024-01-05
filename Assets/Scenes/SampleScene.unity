@@ -1555,6 +1555,7 @@ MonoBehaviour:
   levelItemsPanel: {fileID: 1142804029}
   mapAnchor: {fileID: 0}
   queueOfCharacters: []
+  _currentCharacter: {fileID: 0}
 --- !u!1 &252222530
 GameObject:
   m_ObjectHideFlags: 0
@@ -6992,7 +6993,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1443737684
 RectTransform:
   m_ObjectHideFlags: 0
