@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using UnityEditor.Search;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -15,12 +12,14 @@ public class GameManager : MonoBehaviour
     [Header("SetInInspector")]
     public static GameManager gameManager;
     public GameInterFace gameInterFace;
+    public LevelRedactor levelRedactor;
     public GameObject mainMenuCanvas;
     public GameObject temporaryMenuPanel;
     public GameObject redactorMenuCanvas;
     public GameObject sizeAdjustmentPanel;
     public GameObject levelItemsPanel;
     [Header("SetDynamically")]
+    [SerializeField]public static bool cursorOnUI;
     public GameObject mapAnchor;
     public List<Character> queueOfCharacters = new List<Character>();
     [SerializeField]private Character _currentCharacter;
@@ -68,7 +67,12 @@ public class GameManager : MonoBehaviour
     }
     public void ChangeTheGameMode (GameState newGameState, GameState oldGameState)
     {
-        switch(newGameState)
+        if(levelRedactor.currentHostedItem != null)
+        {
+            Destroy(levelRedactor.currentHostedItem);
+            levelRedactor.flyingItem = null;
+        }
+            switch(newGameState)
         {
             case GameState.MainMenu:
                 mainMenuCanvas.SetActive(true);
@@ -193,6 +197,7 @@ public class GameManager : MonoBehaviour
     }
     public void GetAbilityCharacterState (int index)
     {
+        currentCharacter.characterState = Character.CharacterState.Readiness;
         ChangeCellsStates(LandscapeCell.CellState.Expectation);
         currentCharacter.attackMode.abilitiesIndex = index;
         currentCharacter.characterState = Character.CharacterState.Ability;
@@ -210,5 +215,9 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+    public static void SetCursorOnUI (bool value)
+    {
+        cursorOnUI = value;
     }
 }

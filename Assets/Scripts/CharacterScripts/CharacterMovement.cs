@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class CharacterMovement : MonoBehaviour
 {
@@ -42,17 +40,17 @@ public class CharacterMovement : MonoBehaviour
                 if (character.currentLandscapeCell.cellState == LandscapeCell.CellState.EnoughPoints)
                 {
                     character.movementPoints -= character.currentLandscapeCell.minimumMovementCosts;
+                    character.superimposedEffects.RecalculateEffectsByMoves(character.currentLandscapeCell.minimumMovementCosts);
                 }
                 else
                 {
-                    Debug.Log($"Ќе хватает поинтов, минимальна€ цена перехода = {character.currentLandscapeCell.minimumMovementCosts}, текуща€ выносливость: {character.currentEdurance}");
                     character.currentEdurance -= character.currentLandscapeCell.minimumMovementCosts - character.movementPoints;
-                    Debug.Log($"¬ыносливость: {character.currentEdurance}");
+                    character.superimposedEffects.RecalculateEffectsByMoves(character.currentLandscapeCell.minimumMovementCosts - character.movementPoints);
                     character.movementPoints = 0;
                 }
                 character.characterState = Character.CharacterState.Readiness;
-                character.gameManager.ChangeCellsStates(LandscapeCell.CellState.Expectation);
             }
         }
     }
+
 }

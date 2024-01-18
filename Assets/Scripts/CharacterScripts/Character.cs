@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -20,9 +18,11 @@ public class Character:MonoBehaviour
     public GameObject activeBackground;
     public GameObject characterRedactorPrefab;
     public GameObject healthChangerPrefab;
+    public GameObject personalCharactersCanvasPrefab;
     public EnergyCostCalculator energyCostCalculator;
     public CharacterMovement characterMovement;
     public AttackMode attackMode;
+    public SuperimposedEffects superimposedEffects;
 
     [Header("SetDynamically")]
     public GameObject portraitInTheQueueGO;
@@ -30,6 +30,8 @@ public class Character:MonoBehaviour
     public MapAnchor mapAnchor;
     public PortraitInTheQueue portraitInTheQueueScr;
     public CaracterRedactorPanel caracterRedactorPanel;
+    public PersonalCharactersCanvas personalCharactersCanvas;
+    public Vector2[] abilitiesRecharge; // x - Сколько сейчас зарядов, y - сколько ходов осталось до зарядки следующего
     public Vector2[] path;  // Маршрут движения 
     public LandscapeCell currentLandscapeCell; // Текущая ячейка игрока
     public int teamNumber; // Номер команды
@@ -49,7 +51,7 @@ public class Character:MonoBehaviour
     [SerializeField]private float _initiative; // Инициатива
     private bool firstStart = true;
     private CharacterSO _characterSO;
-    private CharacterState _characterState;
+    [SerializeField]private CharacterState _characterState;
     public string characterName
     {
         get
@@ -59,6 +61,8 @@ public class Character:MonoBehaviour
         set
         {
             _characterName = value;
+            personalCharactersCanvas.charactersName.text = characterName;
+            personalCharactersCanvas.targetCharacterNameText.text = characterName;
         }
     }
     public float endurance
@@ -80,13 +84,14 @@ public class Character:MonoBehaviour
         }
         set
         {
-            if (value > endurance)
+            if(value > endurance)
             {
                 _currentEdurance = endurance;
             }
             else
             {
                 _currentEdurance = value;
+                personalCharactersCanvas.enduranceNumberText.text = currentEdurance.ToString("F0");
             }
         }
     }
@@ -105,26 +110,45 @@ public class Character:MonoBehaviour
     {
         get
         {
-            return (_currentHealth);
+            return (_currentHealth + superimposedEffects.shield.x);
         }
         set
         {
-            HealthChanger healthChanger = Instantiate(healthChangerPrefab, this.transform).GetComponent<HealthChanger>();
-            if(value -_currentHealth > 0)
+            if(value != currentHealth)
             {
-                healthChanger.number.color = Color.green;
-                healthChanger.number.text = "+" + (value - _currentHealth).ToString();
+                HealthChanger healthChanger = Instantiate(healthChangerPrefab, this.transform).GetComponent<HealthChanger>();
+                if(value - currentHealth > 0)
+                {
+
+                    healthChanger.number.color = Color.green;
+                    healthChanger.number.text = "+" + (value - _currentHealth).ToString();
+                }
+                else
+                {
+                    healthChanger.number.color = Color.red;
+
+                    healthChanger.number.text = (value - _currentHealth).ToString();
+                }
+            }
+
+            if(superimposedEffects.shield.x - value > 0)
+            {
+                superimposedEffects.shield = new Vector3(superimposedEffects.shield.x - value, superimposedEffects.shield.y, superimposedEffects.shield.z);
             }
             else
             {
-                healthChanger.number.color = Color.red;
-                healthChanger.number.text = (value - _currentHealth).ToString();
+                _currentHealth = value - superimposedEffects.shield.x;
+                superimposedEffects.shield = Vector3.zero;
             }
-            _currentHealth = value;
-            if (_currentHealth <= 0)
+
+            if(currentHealth <= 0)
             {
                 characterState = CharacterState.Death;
             }
+            personalCharactersCanvas.healthNumberText.text = $"{_currentHealth.ToString("F0")} / {health.ToString("F0")}";
+            personalCharactersCanvas.targetHealthNumberText.text = $"{_currentHealth.ToString("F0")} / {health.ToString("F0")}";
+            personalCharactersCanvas.currentHealthProgressBar.fillAmount = currentHealth / health;
+            personalCharactersCanvas.targetHealthProgressBar.fillAmount = currentHealth / health;
         }
     }
     public float mana
@@ -146,24 +170,46 @@ public class Character:MonoBehaviour
         }
         set
         {
-            if (value > mana)
+            if(value > mana)
             {
                 _currentMana = mana;
-            } else
+            }
+            else
             {
                 _currentMana = value;
             }
+            personalCharactersCanvas.manaNumberText.text = $"{currentMana.ToString("F0")} / {mana.ToString("F0")}";
+            personalCharactersCanvas.targetManaNumberText.text = $"{currentMana.ToString("F0")} / {mana.ToString("F0")}";
+            personalCharactersCanvas.currentManaProgressBar.fillAmount = currentMana / mana;
+            personalCharactersCanvas.targetManaProgressBar.fillAmount = currentMana / mana;
         }
     }
     public float speed
     {
         get
         {
-            return (_speed);
+            float slowingDown = 0;
+            float boost = 0;
+            if (superimposedEffects.slowingDownInCycles.Count != 0)
+            {
+                foreach(Vector3 slowingDownVector in superimposedEffects.slowingDownInCycles)
+                {
+                    slowingDown += slowingDownVector.x;
+                }
+            }
+            if (superimposedEffects.boost.Count != 0)
+            {
+                foreach(Vector3 boostVector in superimposedEffects.boost)
+                {
+                    boost += boostVector.x;
+                }
+            }
+            return (_speed * (1 - superimposedEffects.slowingDownFromEndurance.x) * (1 - slowingDown) + (_speed * boost));
         }
         set
         {
             _speed = value;
+            personalCharactersCanvas.speedNumberText.text = speed.ToString("F0");
         }
     }
     public float movementPoints
@@ -175,6 +221,7 @@ public class Character:MonoBehaviour
         set
         {
             _movementPoints = value;
+            personalCharactersCanvas.pointsNumberText.text = movementPoints.ToString("F0");
         }
     }
     public float attackPower
@@ -186,6 +233,7 @@ public class Character:MonoBehaviour
         set
         {
             _attackPower = value;
+            personalCharactersCanvas.attackPowerNumberText.text = attackPower.ToString("F0");
         }
     }
     public float attackRange
@@ -197,6 +245,7 @@ public class Character:MonoBehaviour
         set
         {
             _attackRange = value;
+            personalCharactersCanvas.attackRangeNumberText.text = attackRange.ToString("F0");
         }
     }
     public float initiative
@@ -208,6 +257,7 @@ public class Character:MonoBehaviour
         set
         {
             _initiative = value;
+            personalCharactersCanvas.initiativeNumberText.text = initiative.ToString("F0");
         }
     }
     public CharacterSO characterSO
@@ -230,7 +280,7 @@ public class Character:MonoBehaviour
         }
         set
         {
-            if (_characterState == CharacterState.Expectation)
+            if(value == CharacterState.Readiness && characterState == CharacterState.Expectation)
             {
                 ActionsStartOfTheTurn();
             }
@@ -243,6 +293,7 @@ public class Character:MonoBehaviour
         AssignActions(this.gameObject);
         Transform transform = this.gameObject.transform;
         transform.position = new Vector3(transform.position.x, transform.position.y, -1);
+        characterState = CharacterState.Expectation;
     }
     private void Update ()
     {
@@ -250,6 +301,8 @@ public class Character:MonoBehaviour
     }
     public void SetParameters ()
     {
+        personalCharactersCanvas = Instantiate(personalCharactersCanvasPrefab).GetComponent<PersonalCharactersCanvas>();
+        personalCharactersCanvas.character = this;
         bodyGO.GetComponent<SpriteRenderer>().sprite = characterSO.characterImage;
         characterName = characterSO.characterName;
         endurance = characterSO.endurance;
@@ -257,12 +310,13 @@ public class Character:MonoBehaviour
         health = characterSO.health;
         currentHealth = characterSO.health;
         mana = characterSO.mana;
-        currentMana = characterSO.mana/2;
+        currentMana = characterSO.mana / 2;
         speed = characterSO.speed;
         movementPoints = characterSO.movementPoints;
         attackPower = characterSO.attackPower;
         attackRange = characterSO.attackRange;
         initiative = characterSO.initiative;
+        personalCharactersCanvas.FillInTheFields();
     }
 
     public void AssignActions (GameObject character)
@@ -277,6 +331,16 @@ public class Character:MonoBehaviour
             down.eventID = EventTriggerType.PointerDown;
             down.callback.AddListener((data) => { OnPointerDownDelegate((PointerEventData)data); });
             eventTrigger.triggers.Add(down);
+
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerEnter;
+            entry.callback.AddListener((data) => { OnPointerEnterDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(entry);
+
+            EventTrigger.Entry exit = new EventTrigger.Entry();
+            exit.eventID = EventTriggerType.PointerExit;
+            exit.callback.AddListener((data) => { OnPointerExitDelegate((PointerEventData)data); });
+            eventTrigger.triggers.Add(exit);
         }
     }
 
@@ -294,7 +358,20 @@ public class Character:MonoBehaviour
                 }
                 break;
         }
-
+    }
+    public void OnPointerEnterDelegate (PointerEventData data)
+    {
+        if (characterState == CharacterState.Expectation)
+        {
+            personalCharactersCanvas.targetCharacterPanel.SetActive(true);
+        }
+    }
+    public void OnPointerExitDelegate (PointerEventData data)
+    {
+        if(characterState == CharacterState.Expectation)
+        {
+            personalCharactersCanvas.targetCharacterPanel.SetActive(false);
+        }
     }
     public void RegisterKeystrokes ()
     {
@@ -313,15 +390,17 @@ public class Character:MonoBehaviour
         switch(state)
         {
             case CharacterState.Expectation:
+                ActionsEndOfTheTurn(); // Выполнить действия конца хода
                 activeBackground.SetActive(false);
                 this.gameObject.layer = 15;
-                ActionsEndOfTheTurn(); // Выполнить действия конца хода
+                personalCharactersCanvas.currentCharacterPanel.SetActive(false);
                 break;
             case CharacterState.Readiness:
-
+                gameManager.ChangeCellsStates(LandscapeCell.CellState.Expectation);
+                personalCharactersCanvas.currentCharacterPanel.SetActive(true);
+                energyCostCalculator.CalculateEnergyCost(currentLandscapeCell);
                 break;
             case CharacterState.Movement:
-                energyCostCalculator.CalculateEnergyCost(currentLandscapeCell);
                 break;
             case CharacterState.Attack:
                 attackMode.attackIsOn = true;
@@ -330,6 +409,10 @@ public class Character:MonoBehaviour
                 attackMode.abilityIsOn = true;
                 break;
             case CharacterState.Death:
+                if(gameManager.currentCharacter == this) // Если этот герой сейчас должен ходить
+                {
+                    gameManager.MoveTheTurnQueue(); // Перенести ход дальше
+                }
                 currentLandscapeCell.currentCharacter = null;
                 mapAnchor.charactersList.Remove(this);
                 Destroy(portraitInTheQueueGO);
@@ -339,20 +422,71 @@ public class Character:MonoBehaviour
     }
     public void ActionsStartOfTheTurn ()
     {
-        if (!firstStart)
+        if(!firstStart)
         {
             currentEdurance += 30;
             movementPoints = 15;
             currentMana += 15;
+
         }
         else
         {
             firstStart = false;
+            for(int i = 0; i < 4; i++)
+            {
+                abilitiesRecharge[i].x = 1;
+                abilitiesRecharge[i].y = characterSO.abilities[i].recharge;
+            }
         }
+        if(superimposedEffects.listOfInfectedEnemies.Count > 0) // применение кары небес на тех игроков, на которых было наложено ранее
+        {
+            foreach(Character target in superimposedEffects.listOfInfectedEnemies)
+            {
+                target.currentHealth -= characterSO.abilities[2].firstDamage;
+                currentEdurance -= 10;
+            }
+            superimposedEffects.listOfInfectedEnemies.Clear();
+        }
+        if(superimposedEffects.lossOfEndurance.Count > 0) // Применение взмах щитами 
+        {
+            int countNumber = superimposedEffects.lossOfEndurance.Count -1;
+            for(int i = countNumber; i > -1; i--)
+            {
+                currentEdurance -= superimposedEffects.lossOfEndurance[i].x;
+                superimposedEffects.lossOfEndurance[i] = new Vector3(superimposedEffects.lossOfEndurance[i].x, superimposedEffects.lossOfEndurance[i].y - 1, 0);
+                if(superimposedEffects.lossOfEndurance[i].y <= 0)
+                {
+                    superimposedEffects.lossOfEndurance.RemoveAt(i);
+                }
+            }
+        }
+        personalCharactersCanvas.RedrawAbilitiesBoxes();
     }
+    // Действия конца хода
     public void ActionsEndOfTheTurn ()
     {
-        // Действия конца хода
+        ApplyDamageDistribution();
+        for(int i = 0; i < 4; i++) // Пересчитать перезарядку умений
+        {
+            if (abilitiesRecharge[i].x < 2)
+            {
+                abilitiesRecharge[i].y--;
+                if(abilitiesRecharge[i].y == 0)
+                {
+                    abilitiesRecharge[i].x++;
+                    abilitiesRecharge[i].y = characterSO.abilities[i].recharge;
+                }
+            }
+        }
+        superimposedEffects.RecalculateEffectsByEndCycle();
+    }
+    public void ApplyDamageDistribution ()
+    {
+        if(superimposedEffects.staticStartSetDamage.y > 0) // Применение большой молотилки
+        {
+            LayerMask characterMask = 1 << 15;
+            attackMode.DealDamageByArea(characterMask, superimposedEffects.staticStartSetDamage.z / 5, superimposedEffects.staticStartSetDamage.x);
+        }
     }
     // Сбрасывает эффекты других режимов
     public void ResetModes ()

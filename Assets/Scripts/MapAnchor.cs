@@ -62,6 +62,7 @@ public class MapAnchor:MonoBehaviour
                 }
             }
         }
+        Camera.main.GetComponent<CameraMovement>().mapCentre = new Vector3(horizontalNumer / 2, verticalNumber / 2, -10);
     }
     private void CreateCell (int x, int y)
     {

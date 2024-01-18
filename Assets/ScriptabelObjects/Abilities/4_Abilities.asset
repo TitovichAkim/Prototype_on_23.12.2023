@@ -12,7 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7c1930e3222ca94f94917bc2b3fa0d2, type: 3}
   m_Name: 4_Abilities
   m_EditorClassIdentifier: 
+  abilitiesIcon: {fileID: 0}
   abilitiesName: "\u0411\u043E\u043B\u044C\u0448\u0430\u044F \u043C\u043E\u043B\u043E\u0442\u0438\u043B\u043A\u0430"
+  abilitiesDescription: "\u0411\u043E\u043B\u044C\u0448\u0430\u044F \u043C\u043E\u043B\u043E\u0442\u0438\u043B\u043A\u0430.
+    \n\u0412 \u0442\u0435\u0447\u0435\u043D\u0438\u0438 3-\u0435\u0445 \u0445\u043E\u0434\u043E\u0432,
+    \u0432 \u043A\u043E\u043D\u0446\u0435 \u043A\u0430\u0436\u0434\u043E\u0433\u043E
+    \u0441\u0432\u043E\u0435\u0433\u043E \u0445\u043E\u0434\u0430 \u043D\u0430\u043D\u043E\u0441\u0438\u0442
+    \u043F\u0440\u043E\u0442\u0438\u0432\u043D\u0438\u043A\u0430\u043C \u0432 \u0440\u0430\u0434\u0438\u0443\u0441\u0435
+    5 \u0444\u0443\u0442\u043E\u0432 4 \u0443\u0440\u043E\u043D\u0430. "
   abilitiesIndex: 4
   recharge: 3
   requiredMana: 30
@@ -21,8 +28,8 @@ MonoBehaviour:
   secondDamage: 0
   rangeOfApplication: 0
   radius: 5
-  slowingDown: {x: 0, y: 0}
-  boost: {x: 0, y: 0}
-  shield: {x: 0, y: 0}
+  slowingDown: {x: 0, y: 0, z: 0}
+  boost: {x: 0, y: 0, z: 0}
+  shield: {x: 0, y: 0, z: 0}
   durationOfTheEffect: 3
   instantAction: 1

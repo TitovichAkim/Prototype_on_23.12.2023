@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -61,7 +60,7 @@ public class LandscapeCell:MonoBehaviour
         if(landscapeSO != null)
         {
             landscapeSpriteRenderer.sprite = landscapeSO.landscapeImage;
-            if (!landscapeSO.shootingRange)
+            if(!landscapeSO.shootingRange)
             {
                 this.gameObject.layer = 12;
             }
@@ -77,7 +76,7 @@ public class LandscapeCell:MonoBehaviour
                 GameObject characterGO = Instantiate(characterPrefab);
                 Character characterScr = characterGO.GetComponent<Character>();
                 characterScr.characterSO = levelRedactor.levelItemsPanel.setOfLevelEditor.characterSOs[characterIndex];
-                if (teamNumber == 0)
+                if(teamNumber == 0)
                 {
                     characterScr.teamNumber = levelRedactor.levelItemsPanel.itemsContentPanels[1].GetComponent<ItemsContentPanel>().teamNumberDropdown.GetComponent<TMP_Dropdown>().value + 1;
                 }
@@ -133,11 +132,11 @@ public class LandscapeCell:MonoBehaviour
                 ApplyAnObjectInYourHand();
             }
         }
-        else if (GameManager.currentGameState == GameManager.GameState.Game)
+        else if(GameManager.currentGameState == GameManager.GameState.Game)
         {
             if(Input.GetMouseButtonDown(0))
             {
-                if (cellState == CellState.EnoughPoints || cellState == CellState.EnoughStamina)
+                if(cellState == CellState.EnoughPoints || cellState == CellState.EnoughStamina)
                 {
                     gameManager.currentCharacter.characterMovement.targetCells.AddRange(shortestPath);
                 }
@@ -146,17 +145,42 @@ public class LandscapeCell:MonoBehaviour
     }
     public void OnPointerEnterDelegate (PointerEventData data)
     {
-        if(levelRedactor.flyingItem != null)
+        if(EventSystem.current.IsPointerOverGameObject())
+            return;
+        switch(GameManager.currentGameState)
         {
-            if(levelRedactor.flyingItem.paintOver)
-            {
-                ApplyAnObjectInYourHand();
-            }
+            case GameManager.GameState.LevelRedactor:
+                if(levelRedactor.flyingItem != null)
+                {
+                    if(levelRedactor.flyingItem.paintOver)
+                    {
+                        ApplyAnObjectInYourHand();
+                    }
+                }
+                break;
+            case GameManager.GameState.Game:
+                if((cellState == CellState.EnoughPoints || cellState == CellState.EnoughStamina) && gameManager.currentCharacter.characterState == Character.CharacterState.Readiness && _landscapeSO.surmountable)
+                {
+                    DisplayTheCostOfMovement(true);
+                }
+                else if(gameManager.currentCharacter.characterState == Character.CharacterState.Readiness)
+                {
+                    DisplayTheCostOfMovement(true);
+                }
+                break;
         }
     }
     public void OnPointerExitDelegate (PointerEventData data)
     {
-        // ¬ыполните здесь нужные действи€ при входе указател€ в область
+        switch(GameManager.currentGameState)
+        {
+            case GameManager.GameState.Game:
+                if(gameManager.currentCharacter.characterState == Character.CharacterState.Readiness)
+                {
+                    DisplayTheCostOfMovement(false);
+                }
+                break;
+        }
     }
     // ћетод дл€ обновлени€ стоимости прохода к клетке
     public void UpdateCost (float newCost, List<LandscapeCell> path, CellState state)
@@ -205,6 +229,37 @@ public class LandscapeCell:MonoBehaviour
                 minimumMovementCostsText.color = Color.black;
                 minimumMovementCostsText.text = minimumMovementCosts.ToString();
                 break;
+        }
+    }
+    public void DisplayTheCostOfMovement (bool enter)
+    {
+
+        if(enter)
+        {
+            if(cellState == LandscapeCell.CellState.EnoughPoints)
+            {
+                gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.text = (gameManager.currentCharacter.movementPoints - minimumMovementCosts).ToString("F0");
+            }
+            else if(cellState == LandscapeCell.CellState.EnoughStamina)
+            {
+                gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.text = "0";
+                gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.color = Color.red;
+                gameManager.currentCharacter.personalCharactersCanvas.enduranceNumberText.text = (gameManager.currentCharacter.currentEdurance - (minimumMovementCosts - gameManager.currentCharacter.movementPoints)).ToString("F0");
+            }
+            else
+            {
+                gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.text = "0";
+                gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.color = Color.red;
+                gameManager.currentCharacter.personalCharactersCanvas.enduranceNumberText.text = "0";
+                gameManager.currentCharacter.personalCharactersCanvas.enduranceNumberText.color = Color.red;
+            }
+        }
+        else
+        {
+            gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.color = Color.green;
+            gameManager.currentCharacter.personalCharactersCanvas.enduranceNumberText.color = Color.blue;
+            gameManager.currentCharacter.currentEdurance = gameManager.currentCharacter.currentEdurance;
+            gameManager.currentCharacter.movementPoints = gameManager.currentCharacter.movementPoints;
         }
     }
 }
