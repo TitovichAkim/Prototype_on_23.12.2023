@@ -45,10 +45,10 @@ public class PersonalCharactersCanvas:MonoBehaviour
 
     [Header("SetDynamically")]
     public Character _parentCharacter;
-    public GameObject[] effectsGOs = new GameObject[7];
-    public GameObject[] targetEffectsGOs = new GameObject[7];
+    public GameObject flyingText;
+    public GameObject[] effectsGOs = new GameObject[8];
+    public GameObject[] targetEffectsGOs = new GameObject[8];
 
-    private GameObject _flyingText;
     private Character _character;
     private CharacterSO _characterSO;
     public Character character
@@ -149,15 +149,15 @@ public class PersonalCharactersCanvas:MonoBehaviour
 
     public void OnPointerEnterDelegate (PointerEventData data, string itemName)
     {
-        if (_flyingText == null)
+        if (flyingText == null)
         {
-            _flyingText = Instantiate(flyingTextForAbilityPrefab, this.gameObject.transform);
-            _flyingText.GetComponent<FlyingTextForAbility>().tMP_Text.text = itemName;
+            flyingText = Instantiate(flyingTextForAbilityPrefab, this.gameObject.transform);
+            flyingText.GetComponent<FlyingTextForAbility>().tMP_Text.text = itemName;
         }
     }
     public void OnPointerExitDelegate (PointerEventData data)
     {
-        Destroy(_flyingText);
+        Destroy(flyingText);
     }
 }
 

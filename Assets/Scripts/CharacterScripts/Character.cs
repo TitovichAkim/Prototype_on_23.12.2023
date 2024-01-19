@@ -92,6 +92,14 @@ public class Character:MonoBehaviour
             {
                 _currentEdurance = value;
                 personalCharactersCanvas.enduranceNumberText.text = currentEdurance.ToString("F0");
+                if (_currentEdurance <= 0)
+                {
+                    personalCharactersCanvas.enduranceNumberText.color = Color.red;
+                }
+                else
+                {
+                    personalCharactersCanvas.enduranceNumberText.color = Color.blue;
+                }
             }
         }
     }
@@ -126,12 +134,11 @@ public class Character:MonoBehaviour
                 else
                 {
                     healthChanger.number.color = Color.red;
-
                     healthChanger.number.text = (value - _currentHealth).ToString();
                 }
             }
 
-            if(superimposedEffects.shield.x - value > 0)
+            if(superimposedEffects.shield.x - Mathf.Sqrt(value* value) > 0)
             {
                 superimposedEffects.shield = new Vector3(superimposedEffects.shield.x - value, superimposedEffects.shield.y, superimposedEffects.shield.z);
             }
@@ -415,6 +422,7 @@ public class Character:MonoBehaviour
                 }
                 currentLandscapeCell.currentCharacter = null;
                 mapAnchor.charactersList.Remove(this);
+                Destroy(personalCharactersCanvas.gameObject);
                 Destroy(portraitInTheQueueGO);
                 Destroy(this.gameObject);
                 break;
@@ -492,5 +500,10 @@ public class Character:MonoBehaviour
     public void ResetModes ()
     {
         attackMode.attackIsOn = false;
+        if(personalCharactersCanvas.flyingText != null)
+        {
+            Destroy(personalCharactersCanvas.flyingText);
+        }
+        attackMode.abilityIsOn = false;
     }
 }

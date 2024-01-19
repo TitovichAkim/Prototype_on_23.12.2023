@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.TextCore.Text;
 
 public class AttackMode:MonoBehaviour
 {
@@ -14,10 +15,11 @@ public class AttackMode:MonoBehaviour
     public Character targetCharacter;
     [SerializeField]private bool _attackIsOn;
     [SerializeField]private bool _abilityIsOn;
-    private int _abilitiesIndex;
     public AbilitiesSO currentAbility;
     public Vector3 characterPos;
     public LayerMask layerMask;
+    private int _abilitiesIndex;
+    private bool lesionAreaOn;
     public int abilitiesIndex
     {
         get
@@ -111,11 +113,11 @@ public class AttackMode:MonoBehaviour
             float dist = Vector2.Distance(characterPos, mousPos);
             direction.z = 0;
             RaycastHit2D hit = Physics2D.Raycast(characterPos, direction, range/5, layerMask);
-            if(hit.collider != null && dist > Vector2.Distance(hit.point, characterPos))
+            if(hit.collider != null && dist > Vector2.Distance(characterPos, hit.point))
             {
                 Vector2 hitpoint = hit.point;
                 lineRenderer.SetPosition(1, new Vector3(hitpoint.x, hitpoint.y, -1));
-                if(hit.collider.gameObject.GetComponent<Character>() != null)
+                if(hit.collider.gameObject.CompareTag("Character"))
                 {
                     targetCharacter = hit.collider.gameObject.GetComponent<Character>();
                 }
@@ -149,7 +151,10 @@ public class AttackMode:MonoBehaviour
     }
     public void ShowTheScopeOfApplication (int abilitiesIndex)
     {
-        lesionAreaGO.SetActive(false);
+        if(!lesionAreaOn)
+        {
+            lesionAreaGO.SetActive(false);
+        }
         switch(abilitiesIndex)
         {
             case 0:
@@ -171,7 +176,11 @@ public class AttackMode:MonoBehaviour
                 DisplayTheRadius(_abilityIsOn, currentAbility.rangeOfApplication);
                 break;
             case 6:
-                lesionAreaGO.SetActive(true);
+                if(!lesionAreaOn)
+                {
+                    lesionAreaGO.SetActive(true);
+                    lesionAreaOn = true;
+                }
                 break;
         }
         if(Input.GetMouseButtonDown(0))
@@ -202,8 +211,14 @@ public class AttackMode:MonoBehaviour
                         {
                             targetGO = targetCharacter.gameObject;
                         }
+                        else
+                        {
+                            targetGO = null;
+                            exit = true;
+                            break;
+                        }
                         targetGO.GetComponent<Character>().currentHealth -= currentAbility.firstDamage;
-                        Collider2D[] characters = Physics2D.OverlapCircleAll(characterHit.collider.transform.position, currentAbility.radius, characterMask);
+                        Collider2D[] characters = Physics2D.OverlapCircleAll(targetGO.transform.position, currentAbility.radius, characterMask);
                         foreach(Collider2D collider in characters)
                         {
                             Character targetChar = collider.gameObject.GetComponent<Character>();
@@ -220,7 +235,7 @@ public class AttackMode:MonoBehaviour
                 if(characterHit && Vector2.Distance(this.gameObject.transform.position, characterHit.transform.position) <= currentAbility.radius / 5)
                 {
                     GameObject targetGO = characterHit.collider.gameObject;
-                    if (targetGO.GetComponent<Character>().teamNumber != character.teamNumber)
+                    if(targetGO.GetComponent<Character>().teamNumber != character.teamNumber)
                     {
                         if(targetCharacter != null)
                         {
@@ -241,76 +256,80 @@ public class AttackMode:MonoBehaviour
                 if(characterHit && Vector2.Distance(this.gameObject.transform.position, characterHit.transform.position) <= currentAbility.rangeOfApplication / 5)
                 {
                     GameObject targetGO = characterHit.collider.gameObject;
+                    Debug.Log(targetGO.name);
                     if(targetGO.GetComponent<Character>().teamNumber != character.teamNumber)
                     {
-                        if(targetCharacter != null)
-                        {
-                            character.superimposedEffects.listOfInfectedEnemies.Add(targetGO.GetComponent<Character>());
-                        }
+                        character.superimposedEffects.listOfInfectedEnemies.Add(targetGO.GetComponent<Character>());
+                        targetGO.GetComponent<Character>().superimposedEffects.infectionIsThePunishmentOfHeaven += 1;
                         exit = true;
                     }
                 }
                 break;
             case 3:
-                if(landscapeHit 
-                    && Vector2.Distance(this.gameObject.transform.position, landscapeHit.transform.position) <= currentAbility.radius / 5 
+                if(landscapeHit
+                    && Vector2.Distance(this.gameObject.transform.position, landscapeHit.transform.position) <= currentAbility.radius / 5
                     && landscapeHit.collider.gameObject.GetComponent<LandscapeCell>().landscapeSO.surmountable)
                 {
                     GameObject targetGO = landscapeHit.collider.gameObject;
-                    if(targetGO != null)
+                    if(targetGO != null && targetGO.GetComponent<LandscapeCell>().currentCharacter == null)
                     {
                         TeleportationÑharacter(targetGO);
+                        exit = true;
                     }
-                    exit = true;
                 }
                 break;
             case 4: // Áîëüøàÿ ìîëîòèëêà
                 LayerMask selfMask = 1 << 16;
                 RaycastHit2D selfHit = Physics2D.Raycast(targetPosition, Vector2.zero, 11, selfMask);
-if(selfHit)
-{
+                if(selfHit)
+                {
                     character.superimposedEffects.staticStartSetDamage = new Vector3(currentAbility.firstDamage, currentAbility.durationOfTheEffect, currentAbility.radius);
                     exit = true;
                 }
                 break;
             case 5:
-                if(landscapeHit 
-                    && Vector2.Distance(this.gameObject.transform.position, landscapeHit.transform.position) <= currentAbility.rangeOfApplication / 5 
+                if(landscapeHit
+                    && Vector2.Distance(this.gameObject.transform.position, landscapeHit.transform.position) <= currentAbility.rangeOfApplication / 5
                     && landscapeHit.collider.gameObject.GetComponent<LandscapeCell>().landscapeSO.surmountable)
                 {
                     GameObject targetGO = landscapeHit.collider.gameObject;
-                    if(targetGO != null)
+                    if(targetGO != null && targetGO.GetComponent<LandscapeCell>().currentCharacter == null)
                     {
                         TeleportationÑharacter(targetGO);
                         DealDamageByArea(characterMask, currentAbility.radius / 5, currentAbility.secondDamage);
+                        exit = true;
                     }
-                    exit = true;
                 }
                 break;
             case 6:
-                if (lesionAreaScr.charactersInZone.Count != 0)
+                if(lesionAreaScr.charactersInZone.Count != 0)
                 {
+                    Debug.Log(lesionAreaScr.charactersInZone.Count);
                     foreach(Character target in lesionAreaScr.charactersInZone)
                     {
-                        target.superimposedEffects.lossOfEndurance.Add(new Vector3 (currentAbility.firstDamage, 1, 0));
+                        target.superimposedEffects.lossOfEndurance.Add(new Vector3(currentAbility.firstDamage, 1, 0));
                     }
                 }
+                lesionAreaOn = false;
                 exit = true;
                 break;
             case 7:
                 if(abilityIsOn)
                 {
                     Collider2D[] characters = Physics2D.OverlapCircleAll(this.gameObject.transform.position, currentAbility.radius/5, characterMask);
+                    Debug.Log($"Âîò ñêîëüêî ïîéìàë {characters.Length}");
                     character.superimposedEffects.shield = currentAbility.shield;
                     foreach(Collider2D collider in characters)
                     {
+                        Debug.Log($"Åãî çîâóò {collider.gameObject.name}, îí èç êîìàíäû {collider.gameObject.GetComponent<Character>().teamNumber}");
+
                         Character targetChar = collider.gameObject.GetComponent<Character>();
                         if(targetChar != this && targetChar.teamNumber != character.teamNumber)
                         {
                             targetChar.superimposedEffects.slowingDownFromEndurance = currentAbility.slowingDown;
-                                character.superimposedEffects.shield = new Vector3( character.superimposedEffects.shield.x + 10, 
-                                                                                    character.superimposedEffects.shield.y, 
-                                                                                    character.superimposedEffects.shield.z);
+                            character.superimposedEffects.shield = new Vector3(character.superimposedEffects.shield.x + 10,
+                                                                                character.superimposedEffects.shield.y,
+                                                                                character.superimposedEffects.shield.z);
                         }
                     }
                     exit = true;
@@ -330,6 +349,7 @@ if(selfHit)
     // Òåëåïîðòèðóåò ïåðñîíàæà â óêàçàííóþ òî÷êó
     public void TeleportationÑharacter (GameObject targetGO)
     {
+        character.currentLandscapeCell.currentCharacter = null;
         character.currentLandscapeCell = null;
         LandscapeCell targetLandscape = targetGO.GetComponent<LandscapeCell>();
         targetLandscape.currentCharacter = character;
@@ -354,5 +374,6 @@ if(selfHit)
     {
         character.currentMana -= currentAbility.requiredMana;
         character.currentEdurance -= currentAbility.requiredEndurance;
+        character.superimposedEffects.RecalculateEffectsByMoves(currentAbility.requiredEndurance);
     }
 }

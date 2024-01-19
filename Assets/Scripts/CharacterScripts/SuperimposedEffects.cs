@@ -10,14 +10,16 @@ public class SuperimposedEffects:MonoBehaviour
     [Header("SetDynamically")]
     public List<Character> listOfInfectedEnemies = new List<Character>(); // Список врагов, которым нужно нанести урон в начале следующего хода
 
-    [SerializeField]private List<Vector3> _slowingDownInCycles = new List<Vector3>(); // Замедление на x процентов на y циклов персонажа 
-    [SerializeField]private Vector3 _slowingDownFromEndurance; // Замедление на x процентов на y ходов (выносливости) персонажа
-    [SerializeField]private Vector3 _staticEndGetDamage; // Получить урон в конце каждого хода x - сила, y - количество ходов, z - радиус
-    [SerializeField]private Vector3 _staticStartSetDamage; // Урон в начале каждого хода x - сила, y - количество ходов, z - радиус
-    [SerializeField]private List<Vector3> _lossOfEndurance = new List<Vector3>(); // Эффект потери выносливости в начале хода x - на сколько, y - сколько ходов осталось
+    [SerializeField]private List<Vector3> _slowingDownInCycles = new List<Vector3>(); // Замедление на x процентов на y циклов персонажа 0
+    [SerializeField]private Vector3 _slowingDownFromEndurance; // Замедление на x процентов на y ходов (выносливости) персонажа 1
+    [SerializeField]private Vector3 _staticEndGetDamage; // Получить урон в конце каждого хода x - сила, y - количество ходов, z - радиус 2 
+    [SerializeField]private Vector3 _staticStartSetDamage; // Урон в начале каждого хода x - сила, y - количество ходов, z - радиус 3 
+    [SerializeField]private List<Vector3> _lossOfEndurance = new List<Vector3>(); // Эффект потери выносливости в начале хода x - на сколько, y - сколько ходов осталось 4 
+    [SerializeField]private int _infectionIsThePunishmentOfHeaven; // Инфекция от "Кара небес". Тут хранится количество таких наложенных эффектов 7
 
-    [SerializeField]private List<Vector3> _boost = new List<Vector3>(); // Ускорение на x процентов на y циклов
-    [SerializeField]private Vector3 _shield; // Щит на x пунктов на y циклов
+    [SerializeField]private List<Vector3> _boost = new List<Vector3>(); // Ускорение на x процентов на y циклов 5
+    [SerializeField]private Vector3 _shield; // Щит на x пунктов на y циклов 6
+
     public List<Vector3> slowingDownInCycles
     {
         get
@@ -103,6 +105,25 @@ public class SuperimposedEffects:MonoBehaviour
             }
         }
     }
+    public int infectionIsThePunishmentOfHeaven
+    {
+        get
+        {
+            return (_infectionIsThePunishmentOfHeaven);
+        }
+        set
+        {
+            _infectionIsThePunishmentOfHeaven = value;
+            if (_infectionIsThePunishmentOfHeaven > 0)
+            {
+                TransferTheEffectToTheInterface(7, true, 1, infectionIsThePunishmentOfHeaven, false);
+            }
+            else
+            {
+                TransferTheEffectToTheInterface(7, false, 0);
+            }
+        }
+    }
 
     public List<Vector3> boost
     {
@@ -173,7 +194,6 @@ public class SuperimposedEffects:MonoBehaviour
 
     public Vector3 vector3Changer (Vector3 inputVector, float inputChanger = 1)
     {
-        Debug.Log($"Было {inputVector.y}");
         Vector3 result = Vector3.zero;
         if(inputVector.y - inputChanger > 0)
         {
@@ -183,7 +203,7 @@ public class SuperimposedEffects:MonoBehaviour
         return result;
     }
 
-    public void TransferTheEffectToTheInterface (int effectIndex, bool enableEffect, float durationOfTheEffect, int effectsNumber = 0)
+    public void TransferTheEffectToTheInterface (int effectIndex, bool enableEffect, float durationOfTheEffect, int effectsNumber = 0, bool enabledurationOfTheEffectText = true)
     {
         if (character.personalCharactersCanvas != null)
         {
@@ -191,13 +211,13 @@ public class SuperimposedEffects:MonoBehaviour
             {
                 if(character.personalCharactersCanvas.effectsGOs[effectIndex] != null)
                 {
-                    ChangeEffectPanel(effectIndex, durationOfTheEffect, effectsNumber);
+                    ChangeEffectPanel(effectIndex, durationOfTheEffect, effectsNumber, enabledurationOfTheEffectText);
                 }
                 else
                 {
                     character.personalCharactersCanvas.effectsGOs[effectIndex] = Instantiate(effectPanelPrefab, character.personalCharactersCanvas.effectsPanelTransform);
                     character.personalCharactersCanvas.targetEffectsGOs[effectIndex] = Instantiate(effectPanelPrefab, character.personalCharactersCanvas.currentEffectsTransform);
-                    ChangeEffectPanel(effectIndex, durationOfTheEffect, effectsNumber);
+                    ChangeEffectPanel(effectIndex, durationOfTheEffect, effectsNumber, enabledurationOfTheEffectText);
                 }
             }
             else
@@ -212,15 +232,19 @@ public class SuperimposedEffects:MonoBehaviour
             }
         }
     }
-    public void ChangeEffectPanel (int effectIndex, float durationOfTheEffect = 0, int effectsNumber = 0)
+    public void ChangeEffectPanel (int effectIndex, float durationOfTheEffect = 0, int effectsNumber = 0, bool enabledurationOfTheEffectText = true)
     {
         Debug.Log($"Меняю цифры на {effectIndex} {durationOfTheEffect} {effectsNumber}");
         character.personalCharactersCanvas.effectsGOs[effectIndex].GetComponent<EffectItems>().effectNumberTextGO.SetActive(effectsNumber > 1);
         character.personalCharactersCanvas.effectsGOs[effectIndex].GetComponent<EffectItems>().effectNumberText.text = effectsNumber.ToString("F0");
         character.personalCharactersCanvas.effectsGOs[effectIndex].GetComponent<EffectItems>().durationOfTheEffectText.text = durationOfTheEffect.ToString("F0");
+        character.personalCharactersCanvas.effectsGOs[effectIndex].GetComponent<EffectItems>().durationOfTheEffectText.gameObject.SetActive(enabledurationOfTheEffectText);
+
 
         character.personalCharactersCanvas.targetEffectsGOs[effectIndex].GetComponent<EffectItems>().effectNumberTextGO.SetActive(effectsNumber > 1);
         character.personalCharactersCanvas.targetEffectsGOs[effectIndex].GetComponent<EffectItems>().effectNumberText.text = effectsNumber.ToString("F0");
         character.personalCharactersCanvas.targetEffectsGOs[effectIndex].GetComponent<EffectItems>().durationOfTheEffectText.text = durationOfTheEffect.ToString("F0");
+        character.personalCharactersCanvas.targetEffectsGOs[effectIndex].GetComponent<EffectItems>().durationOfTheEffectText.gameObject.SetActive(enabledurationOfTheEffectText);
+
     }
 }

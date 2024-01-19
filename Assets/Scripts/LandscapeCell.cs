@@ -26,7 +26,7 @@ public class LandscapeCell:MonoBehaviour
     public float minimumMovementCosts; // Минимальная стоимость движения к этой клетке
     public Vector2 coordinates; // Координаты клетки 
     private LandscapeSO _landscapeSO; // Базовые характеристики клетки
-    private CellState _cellState;
+    [SerializeField]private CellState _cellState;
     public LandscapeSO landscapeSO
     {
         get

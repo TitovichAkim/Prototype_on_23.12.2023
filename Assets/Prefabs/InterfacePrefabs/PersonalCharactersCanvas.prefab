@@ -2989,6 +2989,7 @@ MonoBehaviour:
   targetShieldNumberText: {fileID: 6794134373226517519}
   currentEffectsTransform: {fileID: 6794134373447060280}
   _parentCharacter: {fileID: 0}
+  flyingText: {fileID: 0}
   effectsGOs:
   - {fileID: 0}
   - {fileID: 0}
@@ -2997,7 +2998,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
   targetEffectsGOs:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

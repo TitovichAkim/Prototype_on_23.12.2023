@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class LesionArea : MonoBehaviour
 {
@@ -22,9 +23,9 @@ public class LesionArea : MonoBehaviour
     }
     public void OnTriggerEnter2D (Collider2D collision)
     {
-        if(collision.CompareTag("Character"))
+        if(collision.gameObject.CompareTag("Character"))
         {
-            Character target = collision.GetComponent<Character>();
+            Character target = collision.gameObject.GetComponent<Character>();
             if(target.teamNumber != parentCharacter.teamNumber)
             {
                 charactersInZone.Add(target);
@@ -32,8 +33,8 @@ public class LesionArea : MonoBehaviour
         }
     }
     public void OnTriggerExit2D (Collider2D collision)
-    {
-        if (collision.CompareTag("Character"))
+{
+        if(collision.CompareTag("Character"))
         {
             Character target = collision.GetComponent<Character>();
             charactersInZone.Remove(target);
