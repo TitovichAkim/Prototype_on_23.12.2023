@@ -60,17 +60,11 @@ public class AttackMode:MonoBehaviour
         set
         {
             _abilityIsOn = value;
-            if(!_abilityIsOn)
-            {
-                lineRenderer.positionCount = 1;
-            }
-            else
-            {
-                lineRenderer.positionCount = 2;
-            }
+            targetCharacter = null;
             if(!_abilityIsOn)
             {
                 DisplayTheRadius(_abilityIsOn);
+                lesionAreaGO.SetActive(_abilityIsOn);
             }
         }
     }
@@ -84,11 +78,11 @@ public class AttackMode:MonoBehaviour
     }
     private void Update ()
     {
-        if(attackIsOn)
+        if(attackIsOn && character.currentEdurance >= 15)
         {
             // Атака включена
             DrowSightingLine(character.attackRange);
-            if(Input.GetMouseButtonDown(0) && targetCharacter != null)
+            if(Input.GetMouseButtonDown(0) && targetCharacter != null && !character.lShiftDowning)
             {
                 Attack(targetCharacter);
             }
@@ -96,11 +90,14 @@ public class AttackMode:MonoBehaviour
         if(abilityIsOn)
         {
             ShowTheScopeOfApplication(currentAbility.abilitiesIndex);
-
         }
     }
     public void DrowSightingLine (float range)
     {
+        if (lineRenderer.positionCount < 2)
+        {
+            lineRenderer.positionCount = 2;
+        }
         if(lineRenderer.positionCount > 1)
         {
             targetCharacter = null;
@@ -140,13 +137,18 @@ public class AttackMode:MonoBehaviour
     {
         scopeOfApplication.SetActive(on);
         scopeOfApplication.transform.localScale = Vector3.one * (radius / 5) * 2;
-
     }
     public void Attack (Character target)
     {
         if(target.teamNumber != character.teamNumber)
         {
             target.currentHealth -= character.attackPower;
+            character.currentEdurance -= character.costOfTheAttack;
+            character.superimposedEffects.RecalculateEffectsByMoves(15);
+            if(target.currentHealth <= 0)
+            {
+                character.characterState = Character.CharacterState.Readiness;
+            }
         }
     }
     public void ShowTheScopeOfApplication (int abilitiesIndex)
@@ -159,12 +161,13 @@ public class AttackMode:MonoBehaviour
         {
             case 0:
                 DrowSightingLine(currentAbility.rangeOfApplication);
+                DisplayTheRadius(_abilityIsOn, currentAbility.rangeOfApplication);
                 break;
             case 1:
-                DrowSightingLine(currentAbility.rangeOfApplication);
+                DisplayTheRadius(_abilityIsOn, currentAbility.radius);
                 break;
             case 2:
-                DrowSightingLine(currentAbility.rangeOfApplication);
+                DisplayTheRadius(_abilityIsOn, currentAbility.rangeOfApplication);
                 break;
             case 3:
                 DisplayTheRadius(_abilityIsOn, currentAbility.radius);
@@ -182,6 +185,9 @@ public class AttackMode:MonoBehaviour
                     lesionAreaOn = true;
                 }
                 break;
+            case 7:
+                DisplayTheRadius(_abilityIsOn, currentAbility.radius);
+                break;
         }
         if(Input.GetMouseButtonDown(0))
         {
@@ -189,6 +195,12 @@ public class AttackMode:MonoBehaviour
             {
                 ApplyTheAbility(abilitiesIndex);
             }
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            lesionAreaGO.SetActive(false);
+            lesionAreaOn = false;
+            character.characterState = Character.CharacterState.Readiness;
         }
     }
     public void ApplyTheAbility (int abilitiesIndex)
@@ -201,7 +213,7 @@ public class AttackMode:MonoBehaviour
         bool exit = false;
         switch(abilitiesIndex)
         {
-            case 0:
+            case 0: // Копье молнии
                 if(characterHit && Vector2.Distance(this.gameObject.transform.position, characterHit.transform.position) <= currentAbility.rangeOfApplication / 5)
                 {
                     GameObject targetGO = characterHit.collider.gameObject;
@@ -218,11 +230,11 @@ public class AttackMode:MonoBehaviour
                             break;
                         }
                         targetGO.GetComponent<Character>().currentHealth -= currentAbility.firstDamage;
-                        Collider2D[] characters = Physics2D.OverlapCircleAll(targetGO.transform.position, currentAbility.radius, characterMask);
+                        Collider2D[] characters = Physics2D.OverlapCircleAll(targetGO.transform.position, currentAbility.radius/5, characterMask);
                         foreach(Collider2D collider in characters)
                         {
                             Character targetChar = collider.gameObject.GetComponent<Character>();
-                            if(targetChar != character && targetChar != targetGO.GetComponent<Character>())
+                            if(targetChar != character && targetChar != targetGO.GetComponent<Character>() && targetChar.teamNumber != character.teamNumber)
                             {
                                 targetChar.currentHealth -= currentAbility.secondDamage;
                             }
@@ -231,7 +243,7 @@ public class AttackMode:MonoBehaviour
                     }
                 }
                 break;
-            case 1:
+            case 1: // Шоковая терапия
                 if(characterHit && Vector2.Distance(this.gameObject.transform.position, characterHit.transform.position) <= currentAbility.radius / 5)
                 {
                     GameObject targetGO = characterHit.collider.gameObject;
@@ -252,7 +264,7 @@ public class AttackMode:MonoBehaviour
                     }
                 }
                 break;
-            case 2:
+            case 2: // Кара небеc
                 if(characterHit && Vector2.Distance(this.gameObject.transform.position, characterHit.transform.position) <= currentAbility.rangeOfApplication / 5)
                 {
                     GameObject targetGO = characterHit.collider.gameObject;
@@ -301,13 +313,13 @@ public class AttackMode:MonoBehaviour
                     }
                 }
                 break;
-            case 6:
+            case 6: // Взмах щитами
                 if(lesionAreaScr.charactersInZone.Count != 0)
                 {
-                    Debug.Log(lesionAreaScr.charactersInZone.Count);
                     foreach(Character target in lesionAreaScr.charactersInZone)
                     {
                         target.superimposedEffects.lossOfEndurance.Add(new Vector3(currentAbility.firstDamage, 1, 0));
+                        target.superimposedEffects.lossOfEndurance = target.superimposedEffects.lossOfEndurance;
                     }
                 }
                 lesionAreaOn = false;
@@ -317,11 +329,9 @@ public class AttackMode:MonoBehaviour
                 if(abilityIsOn)
                 {
                     Collider2D[] characters = Physics2D.OverlapCircleAll(this.gameObject.transform.position, currentAbility.radius/5, characterMask);
-                    Debug.Log($"Вот сколько поймал {characters.Length}");
                     character.superimposedEffects.shield = currentAbility.shield;
                     foreach(Collider2D collider in characters)
                     {
-                        Debug.Log($"Его зовут {collider.gameObject.name}, он из команды {collider.gameObject.GetComponent<Character>().teamNumber}");
 
                         Character targetChar = collider.gameObject.GetComponent<Character>();
                         if(targetChar != this && targetChar.teamNumber != character.teamNumber)
@@ -342,6 +352,13 @@ public class AttackMode:MonoBehaviour
             abilityIsOn = false;
             currentAbility = null;
             lesionAreaGO.SetActive(false);
+            character.abilitiesRecharge[(abilitiesIndex % 4)].x -= 1;
+            character.personalCharactersCanvas.RedrawAbilitiesBoxes();
+            character.characterState = Character.CharacterState.Readiness;
+            lineRenderer.positionCount = 1;
+        }
+        else
+        {
             character.characterState = Character.CharacterState.Readiness;
         }
 
@@ -353,7 +370,7 @@ public class AttackMode:MonoBehaviour
         character.currentLandscapeCell = null;
         LandscapeCell targetLandscape = targetGO.GetComponent<LandscapeCell>();
         targetLandscape.currentCharacter = character;
-        character.transform.position = targetGO.transform.position;
+        character.transform.position = new Vector3(targetGO.transform.position.x, targetGO.transform.position.y, -1);
         character.currentLandscapeCell = targetLandscape;
     }
     // Нанесет урон по области (исключая союзников)

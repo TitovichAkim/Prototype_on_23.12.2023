@@ -12,10 +12,12 @@ public class LevelRedactor:MonoBehaviour
     public GameObject flyingItemPrefab;
     public GameObject mapAnchorPrefab;
     public GameObject valueSettingPanel;
+    public GameObject menuPanel;
+    public GameObject levelItemsPanelGO;
     public Transform mainCameraTransform;
     public TMP_InputField horizontalInputField;
     public TMP_InputField verticalInputField;
-
+    public Color[] teamColors; // В инспекторе настраиваем цвета команд
     public LevelItemsPanel levelItemsPanel;
 
     [Header("SetDynamically")]
@@ -26,13 +28,27 @@ public class LevelRedactor:MonoBehaviour
     public int verticalNumber;
     public GameObject currentHostedItem;
     public FlyingItem flyingItem;
+    public static Character redactingCharacter; // Персонаж, который находится в режиме редактирования
+    public LevelItemsPanel levelItemsPanelScr;
     private void Update ()
     {
-        if (currentHostedItem != null && Input.GetKeyDown(KeyCode.Escape))
+        if(currentHostedItem != null && Input.GetKeyDown(KeyCode.Escape))
         {
             Destroy(currentHostedItem);
             currentHostedItem = null;
             flyingItem = null;
+        }
+        if(GameManager.currentGameState == GameManager.GameState.LevelRedactor && Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(gameManager.currentCharacterRedactor != null)
+            {
+                gameManager.currentCharacterRedactor.DestroyCharacterRedactor();
+            }
+            else
+            {
+                menuPanel.SetActive(levelItemsPanelGO.activeSelf);
+                levelItemsPanelGO.SetActive(!menuPanel.activeSelf);
+            }
         }
     }
     public void SetFlyingItem (ScriptableObject itemType, int itemIndex)
@@ -73,6 +89,7 @@ public class LevelRedactor:MonoBehaviour
                 levelItemsPanel.gameObject.SetActive(true);
                 mapAnchor = Instantiate(mapAnchorPrefab).GetComponent<MapAnchor>();
                 gameManager.mapAnchor = mapAnchor.gameObject;
+                gameManager.mapAnchorScr = mapAnchor;
                 InstantiateMap(x, y, true);
             }
             else

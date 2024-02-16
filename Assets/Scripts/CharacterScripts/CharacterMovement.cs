@@ -40,17 +40,16 @@ public class CharacterMovement : MonoBehaviour
                 if (character.currentLandscapeCell.cellState == LandscapeCell.CellState.EnoughPoints)
                 {
                     character.movementPoints -= character.currentLandscapeCell.minimumMovementCosts;
-                    character.superimposedEffects.RecalculateEffectsByMoves(character.currentLandscapeCell.minimumMovementCosts);
                 }
                 else
                 {
                     character.currentEdurance -= character.currentLandscapeCell.minimumMovementCosts - character.movementPoints;
-                    character.superimposedEffects.RecalculateEffectsByMoves(character.currentLandscapeCell.minimumMovementCosts - character.movementPoints);
                     character.movementPoints = 0;
                 }
+                character.superimposedEffects.RecalculateEffectsByMoves(character.currentLandscapeCell.minimumMovementCosts);
                 character.characterState = Character.CharacterState.Readiness;
             }
         }
+        characterTransform.position = new Vector3(characterTransform.position.x, characterTransform.position.y, -1);
     }
-
 }

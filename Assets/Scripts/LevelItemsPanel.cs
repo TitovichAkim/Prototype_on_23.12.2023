@@ -21,6 +21,7 @@ public class LevelItemsPanel : MonoBehaviour
     public void Start ()
     {
         itemsContentPanels = new GameObject[2];
+        levelRedactor.levelItemsPanel = this;
         GenerateContent();
     }
     public void GenerateContent ()

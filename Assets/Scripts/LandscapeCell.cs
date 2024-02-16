@@ -25,7 +25,7 @@ public class LandscapeCell:MonoBehaviour
     public List<LandscapeCell> adjacentLandscapeCellsDiagonally; // Соседние ячейки по диагонали
     public float minimumMovementCosts; // Минимальная стоимость движения к этой клетке
     public Vector2 coordinates; // Координаты клетки 
-    private LandscapeSO _landscapeSO; // Базовые характеристики клетки
+    [SerializeField]private LandscapeSO _landscapeSO; // Базовые характеристики клетки
     [SerializeField]private CellState _cellState;
     public LandscapeSO landscapeSO
     {
@@ -64,7 +64,7 @@ public class LandscapeCell:MonoBehaviour
             {
                 this.gameObject.layer = 12;
             }
-
+            cellState = CellState.Expectation;
         }
     }
     public void SetCharacterItem (int characterIndex, int teamNumber = 0)
@@ -85,17 +85,14 @@ public class LandscapeCell:MonoBehaviour
                     characterScr.teamNumber = teamNumber;
                 }
                 levelRedactor.mapAnchor.charactersList.Add(characterScr);
+                gameManager.queueOfCharacters.Add(characterScr);
                 characterGO.transform.position = this.gameObject.transform.position;
                 currentCharacter = characterScr;
                 characterScr.currentLandscapeCell = this;
                 characterScr.gameManager = gameManager;
                 characterScr.mapAnchor = gameManager.mapAnchor.GetComponent<MapAnchor>();
+                characterScr.teamColorBackgroundRenderer.color = levelRedactor.teamColors[characterScr.teamNumber - 1];
             }
-            Debug.Log("Нельзя разместить сдесь");
-        }
-        else
-        {
-            Debug.Log("Разместите проходимый рельеф");
         }
     }
 
@@ -127,9 +124,16 @@ public class LandscapeCell:MonoBehaviour
     {
         if(GameManager.currentGameState == GameManager.GameState.LevelRedactor)
         {
-            if(Input.GetMouseButtonDown(1) && levelRedactor.flyingItem != null)
+            if(Input.GetMouseButtonDown(1) && levelRedactor.flyingItem != null && currentCharacter == null)
             {
                 ApplyAnObjectInYourHand();
+            }
+            if(Input.GetMouseButtonDown(1) && LevelRedactor.redactingCharacter != null )
+            {
+                if(landscapeSO.surmountable && levelRedactor.flyingItem == null)
+                {
+                    LevelRedactor.redactingCharacter.attackMode.TeleportationСharacter(this.gameObject);
+                }
             }
         }
         else if(GameManager.currentGameState == GameManager.GameState.Game)
@@ -145,27 +149,28 @@ public class LandscapeCell:MonoBehaviour
     }
     public void OnPointerEnterDelegate (PointerEventData data)
     {
-        if(EventSystem.current.IsPointerOverGameObject())
-            return;
         switch(GameManager.currentGameState)
         {
             case GameManager.GameState.LevelRedactor:
                 if(levelRedactor.flyingItem != null)
                 {
-                    if(levelRedactor.flyingItem.paintOver)
+                    if(levelRedactor.flyingItem.paintOver && currentCharacter == null)
                     {
                         ApplyAnObjectInYourHand();
                     }
                 }
                 break;
             case GameManager.GameState.Game:
-                if((cellState == CellState.EnoughPoints || cellState == CellState.EnoughStamina) && gameManager.currentCharacter.characterState == Character.CharacterState.Readiness && _landscapeSO.surmountable)
+                if (gameManager.currentCharacter != null)
                 {
-                    DisplayTheCostOfMovement(true);
-                }
-                else if(gameManager.currentCharacter.characterState == Character.CharacterState.Readiness)
-                {
-                    DisplayTheCostOfMovement(true);
+                    if((cellState == CellState.EnoughPoints || cellState == CellState.EnoughStamina) && gameManager.currentCharacter.characterState == Character.CharacterState.Readiness && _landscapeSO.surmountable)
+                    {
+                        DisplayTheCostOfMovement(true);
+                    }
+                    else if(gameManager.currentCharacter.characterState == Character.CharacterState.Readiness)
+                    {
+                        DisplayTheCostOfMovement(true);
+                    }
                 }
                 break;
         }
@@ -175,9 +180,12 @@ public class LandscapeCell:MonoBehaviour
         switch(GameManager.currentGameState)
         {
             case GameManager.GameState.Game:
-                if(gameManager.currentCharacter.characterState == Character.CharacterState.Readiness)
+                if (gameManager.currentCharacter != null)
                 {
-                    DisplayTheCostOfMovement(false);
+                    if(gameManager.currentCharacter.characterState == Character.CharacterState.Readiness)
+                    {
+                        DisplayTheCostOfMovement(false);
+                    }
                 }
                 break;
         }
@@ -202,6 +210,7 @@ public class LandscapeCell:MonoBehaviour
                 break;
             case CharacterSO:
                 SetCharacterItem(indexItemInHand);
+                gameManager.initiativeHasChanged = true;
                 break;
         }
     }
@@ -256,8 +265,8 @@ public class LandscapeCell:MonoBehaviour
         }
         else
         {
-            gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.color = Color.green;
-            gameManager.currentCharacter.personalCharactersCanvas.enduranceNumberText.color = Color.blue;
+            gameManager.currentCharacter.personalCharactersCanvas.pointsNumberText.color = Color.blue;
+            gameManager.currentCharacter.personalCharactersCanvas.enduranceNumberText.color = Color.green;
             gameManager.currentCharacter.currentEdurance = gameManager.currentCharacter.currentEdurance;
             gameManager.currentCharacter.movementPoints = gameManager.currentCharacter.movementPoints;
         }

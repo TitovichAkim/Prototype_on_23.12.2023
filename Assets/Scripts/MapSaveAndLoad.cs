@@ -13,6 +13,8 @@ public class MapSaveAndLoad:MonoBehaviour
     public LevelRedactor levelRedactor;
     public GameManager gameManager;
     public GameObject loadMapPanel;
+    public GameObject mainMenu;
+    public GameObject loadPanel;
     public GameObject saveButtonPrefab;
     public Toggle withCharacters;
     [Header("SetDynamically")]
@@ -21,6 +23,19 @@ public class MapSaveAndLoad:MonoBehaviour
     private void Start ()
     {
         FillInTheSavePanel();
+    }
+    private void Update ()
+    {
+        if(loadPanel.activeSelf || gameManager.sizeAdjustmentPanel.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                mainMenu.SetActive((loadPanel.activeSelf || gameManager.sizeAdjustmentPanel.activeSelf));
+                loadPanel.SetActive(!mainMenu.activeSelf);
+                gameManager.sizeAdjustmentPanel.SetActive(!mainMenu.activeSelf);
+                GameManager.currentGameState = GameManager.GameState.MainMenu;
+            }
+        }
     }
     public void SaveMap ()
     {
@@ -49,8 +64,12 @@ public class MapSaveAndLoad:MonoBehaviour
     }
     public void FillInTheSavePanel ()
     {
+        foreach(GameObject butt in loadButtonsList)
+        {
+            Destroy(butt);
+        }
+        loadButtonsList.Clear();
         int totalSaves = PlayerPrefs.GetInt("TotalSaves");
-        Debug.Log($"Загрузил {totalSaves} карт");
         for(int i = 0; i < totalSaves; i++)
         {
             string loadString = PlayerPrefs.GetString($"Save_{i}");
@@ -61,7 +80,7 @@ public class MapSaveAndLoad:MonoBehaviour
                 saveButton.GetComponentInChildren<TMP_Text>().text = $"{loadString.Split('\n')[0].Split('*')[1]}\n{loadString.Split('\n')[0].Split('*')[2]}";
                 saveButton.GetComponent<Button>().onClick.AddListener(() => LoadMap(loadString));
                 saveButton.GetComponent<Button>().onClick.AddListener(() => gameManager.StartLevelRedactorState(false));
-                saveButton.GetComponent<Button>().onClick.AddListener(() => loadMapPanel.SetActive(false));
+                saveButton.GetComponent<Button>().onClick.AddListener(() => loadPanel.SetActive(false));
             }
         }
     }
@@ -69,6 +88,7 @@ public class MapSaveAndLoad:MonoBehaviour
     {
         levelRedactor.mapAnchor = Instantiate(levelRedactor.mapAnchorPrefab).GetComponent<MapAnchor>();
         gameManager.mapAnchor = levelRedactor.mapAnchor.gameObject;
+        gameManager.mapAnchorScr = mapAnchor;
         mapAnchor = levelRedactor.mapAnchor;
         mapAnchor.levelRedactor = levelRedactor;
 
@@ -131,14 +151,27 @@ public class MapSaveAndLoad:MonoBehaviour
         for(int i = 0; i < characters.Count; i++)
         {
             string parameters = "";
-            parameters += characters[i].characterSO.characterIndex + "^";
-            parameters += characters[i].currentLandscapeCell.coordinates.x + "^";
-            parameters += characters[i].currentLandscapeCell.coordinates.y + "^";
-            parameters += characters[i].teamNumber;
+            parameters += characters[i].characterSO.characterIndex + "^"; // 0
+            parameters += characters[i].currentLandscapeCell.coordinates.x + "^"; // 1
+            parameters += characters[i].currentLandscapeCell.coordinates.y + "^"; // 2
+            parameters += characters[i].teamNumber + "^"; // 3
+            parameters += characters[i].characterName + "^"; // 4
+            parameters += characters[i].endurance + "^"; // 5
+            parameters += characters[i].currentEdurance + "^"; // 6
+            parameters += characters[i].health + "^"; // 7
+            parameters += characters[i].currentHealth + "^"; // 8
+            parameters += characters[i].mana + "^"; // 9
+            parameters += characters[i].currentMana + "^"; // 10
+            parameters += characters[i].speed + "^"; // 11
+            parameters += characters[i].movementPoints + "^"; // 12
+            parameters += characters[i].attackPower + "^"; // 13
+            parameters += characters[i].attackRange + "^"; // 14
+            parameters += characters[i].initiative; // 15
             stringParameters[i] = parameters;
         }
         return stringParameters;
     }
+
     public void FormStringForSaving (string[][] saveString, int saveIndex)
     {
         string theSavedString = "";
@@ -149,11 +182,8 @@ public class MapSaveAndLoad:MonoBehaviour
                 for(int j = 0; j < saveString[i].Length; j++)
                 {
                     theSavedString += saveString[i][j] + "*";
-                    Debug.Log(theSavedString);
                 }
-
             }
-
             if(i < saveString.Length - 1)
             {
                 theSavedString += "\n";
@@ -178,7 +208,6 @@ public class MapSaveAndLoad:MonoBehaviour
         {
             verticalIndex = generalIndex % mapAnchor.verticalNumber;
         }
-        Debug.Log($"Координаты x = {horizontalIndex}, y = {verticalIndex}, индекс = {cellIndex}");
         mapAnchor.landscapeSOs[horizontalIndex][verticalIndex] = levelRedactor.levelItemsPanel.setOfLevelEditor.landscapeSOs[int.Parse(cellIndex)];
     }
     public void GetCharactersParameters (string characterParameters, int generalIndex)
@@ -189,6 +218,19 @@ public class MapSaveAndLoad:MonoBehaviour
         int coordinateY = int.Parse(characterParam[2]);
         int teamNumber = int.Parse(characterParam[3]);
         mapAnchor.landscapeCells[coordinateX][coordinateY].SetCharacterItem(characterIndex, teamNumber);
+        Character character = mapAnchor.landscapeCells[coordinateX][coordinateY].currentCharacter;
+        character.characterName = characterParam[4];
+        character.endurance = float.Parse(characterParam[5]);
+        character.currentEdurance = float.Parse(characterParam[6]);
+        character.health = float.Parse(characterParam[7]);
+        character.currentHealth = float.Parse(characterParam[8]);
+        character.mana = float.Parse(characterParam[9]);
+        character.currentMana = float.Parse(characterParam[10]);
+        character.speed = float.Parse(characterParam[11]);
+        character.movementPoints = float.Parse(characterParam[12]);
+        character.attackPower = float.Parse(characterParam[13]);
+        character.attackRange = float.Parse(characterParam[14]);
+        character.initiative = float.Parse(characterParam[15]); ;
     }
     #endregion
 

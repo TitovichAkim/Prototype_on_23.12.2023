@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -102,15 +103,33 @@ public class PersonalCharactersCanvas:MonoBehaviour
             switch(character.abilitiesRecharge[i].x)
             {
                 case 0:
-                    abilitiesRechargeTexts[i].rectTransform.sizeDelta = new Vector2(50f, 50f);
+                    abilitiesRechargeTexts[i].gameObject.SetActive(true);
+                    abilitiesRechargeTexts[i].rectTransform.sizeDelta = new Vector2(150f, 150f);
+                    abilitiesIcons[i].color = new Color(1, 1, 1, 0.3f); 
                     abilitiesButtons[i].enabled = false;
                     break;
                 case 1:
+                    abilitiesRechargeTexts[i].gameObject.SetActive(true);
                     abilitiesRechargeTexts[i].rectTransform.sizeDelta = new Vector2(50f, 50f);
+                    if(character.characterSO.abilities[i].requiredEndurance <= character.currentEdurance && character.characterSO.abilities[i].requiredMana <= character.currentMana)
+                    {
+                        abilitiesIcons[i].color = new Color(1, 1, 1, 1);
+                    } else
+                    {
+                        abilitiesIcons[i].color = new Color(1, 1, 1, 0.3f);
+                    }
                     abilitiesButtons[i].enabled = true;
                     break;
                 case 2:
-                    abilitiesRechargeTexts[i].rectTransform.sizeDelta = new Vector2(150f, 150f);
+                    abilitiesRechargeTexts[i].gameObject.SetActive(false);
+                    if(character.characterSO.abilities[i].requiredEndurance <= character.currentEdurance && character.characterSO.abilities[i].requiredMana <= character.currentMana)
+                    {
+                        abilitiesIcons[i].color = new Color(1, 1, 1, 1);
+                    }
+                    else
+                    {
+                        abilitiesIcons[i].color = new Color(1, 1, 1, 0.3f);
+                    }
                     abilitiesButtons[i].enabled = true;
                     break;
             }

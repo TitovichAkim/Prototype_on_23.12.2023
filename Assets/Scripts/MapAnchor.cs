@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking.Types;
 
 public class MapAnchor:MonoBehaviour
 {
@@ -23,6 +21,8 @@ public class MapAnchor:MonoBehaviour
         {
             landscapeSOs = new LandscapeSO[horizontalNumer][];
         }
+        levelRedactor.gameManager.mapAnchorScr = this;
+        levelRedactor.gameManager.queueOfCharacters = new List<Character>();
         landscapeCells = new LandscapeCell[horizontalNumer][];
         for(int i = 0; i < horizontalNumer; i++)
         {
@@ -33,6 +33,10 @@ public class MapAnchor:MonoBehaviour
             landscapeCells[i] = new LandscapeCell[verticalNumber];
             for(int j = 0; j < verticalNumber; j++)
             {
+                if(newMap)
+                {
+                    landscapeSOs[i][j] = levelRedactor.levelItemsPanelScr.setOfLevelEditor.landscapeSOs[0];
+                }
                 CreateCell(i, j);
             }
         }

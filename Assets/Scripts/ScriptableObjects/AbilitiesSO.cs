@@ -7,7 +7,7 @@ using UnityEngine;
 public class AbilitiesSO : ScriptableObject
 {
     public Sprite abilitiesIcon; // Иконка способности
-    public string abilitiesName; //название способности
+    public string abilitiesName; // название способности
     [TextArea]public string abilitiesDescription; // Описание способности
     public int abilitiesIndex; // Индекс способности
     public int recharge; // перезарядка

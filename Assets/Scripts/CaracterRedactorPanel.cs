@@ -1,8 +1,12 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.TextCore.Text;
+using UnityEngine.UI;
 
 public class CaracterRedactorPanel:MonoBehaviour
 {
+    public Image characterIcon;
+    public Transform effectsPanel;
     private Character _character;
 
     public TMP_InputField characterNameIF;
@@ -31,6 +35,9 @@ public class CaracterRedactorPanel:MonoBehaviour
     public TMP_Text attackRangePH;
     public TMP_Text initiativePH;
 
+
+    public Image currentHealthProgressBar;
+    public Image currentManaProgressBar;
     public Character character
     {
         get
@@ -43,15 +50,48 @@ public class CaracterRedactorPanel:MonoBehaviour
             UpdateTextFields();
         }
     }
-
-
+    private void Start ()
+    {
+        OpenPanel(GameManager.currentGameState == GameManager.GameState.LevelRedactor);
+        currentHealthProgressBar.fillAmount = character.originCurrentHealth / character.health;
+        currentManaProgressBar.fillAmount = character.currentMana / character.mana;
+    }
+    public void OpenPanel (bool redacting)
+    {
+        characterNameIF.interactable = redacting;
+        enduranceIF.interactable = redacting;
+        currentEduranceIF.interactable = redacting;
+        healthIF.interactable = redacting;
+        currentHealthIF.interactable = redacting;
+        manaIF.interactable = redacting;
+        currentManaIF.interactable = redacting;
+        speedIF.interactable = redacting;
+        movementPointsIF.interactable = redacting;
+        attackPowerIF.interactable = redacting;
+        attackRangeIF.interactable = redacting;
+        initiativeIF.interactable = redacting;
+        if (redacting)
+        {
+            speedIF.gameObject.GetComponent<Image>().color = Color.white;
+            attackPowerIF.gameObject.GetComponent<Image>().color = Color.white;
+            attackRangeIF.gameObject.GetComponent<Image>().color = Color.white;
+            initiativeIF.gameObject.GetComponent<Image>().color = Color.white;
+        }
+        else
+        {
+            speedIF.gameObject.GetComponent<Image>().color =  new Color(1,1,1,0);
+            attackPowerIF.gameObject.GetComponent<Image>().color = new Color(1, 1, 1, 0);
+            attackRangeIF.gameObject.GetComponent<Image>().color = new Color(1, 1, 1, 0);
+            initiativeIF.gameObject.GetComponent<Image>().color = new Color(1, 1, 1, 0);
+        }
+    }
     public void UpdateTextFields ()
     {
         characterNamePH.text = character.characterName;
         endurancePH.text = character.endurance.ToString();
         currentEdurancePH.text = character.currentEdurance.ToString();
         healthPH.text = character.health.ToString();
-        currentHealthPH.text = character.currentHealth.ToString();
+        currentHealthPH.text = character.originCurrentHealth.ToString();
         manaPH.text = character.mana.ToString();
         currentManaPH.text = character.currentMana.ToString();
         speedPH.text = character.speed.ToString();
@@ -104,13 +144,13 @@ public class CaracterRedactorPanel:MonoBehaviour
     {
         if(value == 0)
         {
-            character.currentHealth = float.Parse(currentHealthIF.text);
+            character.originCurrentHealth = float.Parse(currentHealthIF.text);
 
         }
         else
         {
-            character.currentHealth += value;
-            currentHealthIF.text = character.currentHealth.ToString();
+            character.originCurrentHealth += value;
+            currentHealthIF.text = character.originCurrentHealth.ToString();
         }
     }
     public void GetMana (float value)
@@ -204,6 +244,7 @@ public class CaracterRedactorPanel:MonoBehaviour
 
     public void DestroyCharacterRedactor ()
     {
+        LevelRedactor.redactingCharacter = null;
         character.caracterRedactorPanel = null;
         Destroy(this.gameObject);
     }

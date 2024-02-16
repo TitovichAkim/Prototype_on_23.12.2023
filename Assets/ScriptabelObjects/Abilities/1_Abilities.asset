@@ -31,7 +31,7 @@ MonoBehaviour:
   rangeOfApplication: 0
   radius: 50
   slowingDown: {x: 0.25, y: 2, z: 1}
-  boost: {x: 0.25, y: 60, z: 1}
+  boost: {x: 0.25, y: 75, z: 1}
   shield: {x: 0, y: 0, z: 0}
   durationOfTheEffect: 0
   instantAction: 0
